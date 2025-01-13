@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "sprintverify",
+      "source": "@sprintverify/v1.0#243bo9i2llrev5qpk",
+      "integrity": "sha512-VzZRHnRgWheALJg9BqArBNs8mRKJxHbg1gfYNCsMgGyxFvbNi71lcQ961ksMaxr8Tq8aVc/mvdjdxRh6X6Q5/g==",
+      "installerVersion": "6.1.2"
+    }
+  ]
+}

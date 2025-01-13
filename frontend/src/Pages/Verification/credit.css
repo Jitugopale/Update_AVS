@@ -1,0 +1,17 @@
+#contentRef {
+    margin-top: 30px; /* Adjust the top margin to create space */
+    margin-bottom: 30px; /* Adjust the bottom margin */
+  }
+  
+  .component {
+    margin-bottom: 15px; /* Add space between components */
+  }
+  
+  /* credit.css */
+/* .pdf-only {
+  display: none;
+}
+
+.pdf-active .pdf-only {
+  display: block;
+} */

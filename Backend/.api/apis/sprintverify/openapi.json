@@ -1,0 +1,32 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sprintverify",
+    "version": "unknown"
+  },
+  "servers": [
+    {
+      "url": "https://uat.paysprint.in/sprintverify-uat/api/v1/verification/"
+    }
+  ],
+  "components": {
+    "securitySchemes": {}
+  },
+  "security": [
+    {}
+  ],
+  "paths": {},
+  "x-readme": {
+    "headers": [
+      {
+        "key": "Token",
+        "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE2ODAwNjc3MjcsInBhcnRuZXJJZCI6IkNPUlAwMDAwMSIsInJlcWlkIjoia2V5NTg3MDQwIn0.uSFJwpuFC2a0vaybRHGZ2RI1C9fvzF2pqJ0Qr7qa1Nk"
+      },
+      {
+        "key": "authorisedkey",
+        "value": "TVRJek5EVTJOelUwTnpKRFQxSlFNREF3TURFPQ=="
+      }
+    ]
+  },
+  "x-readme-fauxas": true
+}

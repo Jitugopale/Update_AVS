@@ -1,0 +1,13 @@
+#star,#starss {
+    max-height: 50px;
+}
+
+#starss{
+    max-height: 67px;
+}
+
+@media (max-width: 768px) {
+    #star,#stars,#starss {
+        max-height: none;
+    }
+}
