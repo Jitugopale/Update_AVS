@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react';
+import axios from "axios";
+import { useState, useEffect } from 'react';
 import Logout from '../Pages/Authentication/Logout';
 
 const Slide = () => {
@@ -11,6 +12,10 @@ const Slide = () => {
       const [CreditisOpen, setCreditIsOpen] = useState(false);
       const [BranchisOpen, setBranchIsOpen] = useState(false);
       const [UserisOpen, setUserIsOpen] = useState(false);
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true); // State for loading
+      const [error, setError] = useState(null);
+    
     
     const toggleSubmenu = (e) => {
         e.preventDefault();
@@ -46,14 +51,66 @@ const Slide = () => {
         e.preventDefault();
         setUserIsOpen((prevState) => !prevState);
       };
+
+      useEffect(() => {
+        const fetchUser = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            console.log("Token in local storage", token);
+    
+            // Check if token exists, otherwise show error and return
+            if (!token) {
+              setError("User not authenticated. Please log in.");
+              setLoading(false);
+              return;
+            }
+    
+            // Make the API request with the token
+            const response = await axios.get('http://localhost:5000/api/auth/getbank', {
+              headers: {
+                'auth-token': token, // Attach token to the header for authentication
+              },
+            });
+    
+            // Check if response contains data and update state
+            if (response.data) {
+              setUser(response.data);
+            } else {
+              setError('No user data found.');
+            }
+          } catch (error) {
+            // Handle error during API call
+            console.error('Error fetching user data:', error);
+            if (error.response) {
+              // Handle server-side error
+              setError(error.response.data.error || 'Error fetching user data.');
+            } else {
+              // Handle client-side error (e.g., network issues)
+              setError('Error fetching user data. Please try again.');
+            }
+          } finally {
+            // Set loading to false regardless of success or failure
+            setLoading(false);
+          }
+        };
+    
+        fetchUser(); // Call the async function
+      }, []);
+      
+      const { role } = user || {};
       
   return (
     <>
       <nav id="sidebar">
         <ul className="list-unstyled components">
-          <li>
+        <li>
+          {/* Conditionally render based on user role */}
+          {role === 'admin' ? (
+            <Link to="/adminDashboard">Admin Dashboard</Link>
+          ) : (
             <Link to="/dashboard">Dashboard</Link>
-          </li>
+          )}
+        </li>
           <li>
             <Link
               href="#pageSubmenu"

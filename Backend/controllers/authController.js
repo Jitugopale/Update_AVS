@@ -1335,13 +1335,21 @@ export const createBankController = async (req, res) => {
 
   try {
     // Check if any user already exists
-    const existingUser = await BankUser.findOne({ bankName : req.body.bankName, email: req.body.email });
-    if (existingUser) {
-      return res.status(200).json({
-        status: 'success',
-        message: 'Bank is already verified.',
-      });
+    const existingUser = await BankUser.findOne();
+    let role = 'user'; // Default role for subsequent users
+
+    if (!existingUser) {
+      role = 'admin'; // Assign admin role to the first registered user
+    } else {
+      const userExists = await BankUser.findOne({ bankName: req.body.bankName, email: req.body.email });
+      if (userExists) {
+        return res.status(200).json({
+          status: 'success',
+          message: 'Bank is already verified.',
+        });
+      }
     }
+    console.log("Request body:", req.body);
     // if (existingUser) {
     //   return res.status(400).json({ error: "Only one user registration is allowed." });
     // }
@@ -1392,6 +1400,7 @@ const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8
       totalTurnover: req.body.totalTurnover,
       state: req.body.state,
       email: req.body.email,
+      role, // Assign role to the user
       projectOfficer: req.body.projectOfficer,
       dateOfAdmission: date, // Automatically set to the current date
       TimeOfAdmission: time, // Automatically set to the current date
@@ -1411,6 +1420,7 @@ const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8
       bankName: req.body.bankName,
       email: req.body.email,
       userId: userId,
+      role, // Assign role to the user
       password: hashedPassword,
       RegisterDate:date,
       RegisterTime:time
@@ -1421,8 +1431,8 @@ const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8
     const transporter = nodemailer.createTransport({
       service: "gmail", // Replace with your email service
       auth: {
-        user: process.env.EMAIL_USER || "jiteshgopale26@gmail.com", // Use environment variables for security
-        pass: process.env.EMAIL_PASS || "gaxohvmyinvnieoi", // Use environment variables for security
+        user: process.env.EMAIL_USER || "jiteshavs45@gmail.com", // Use environment variables for security
+        pass: process.env.EMAIL_PASS || "lvtwexgczivtnxvq", // Use environment variables for security
       },
     });
 
@@ -1440,6 +1450,7 @@ const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8
     res.status(201).json({
       message: "User registered successfully. Login credentials sent to the provided email.",
       authToken,
+      role
     });
   } catch (error) {
     console.error(error.message);
@@ -1487,6 +1498,7 @@ export const loginBankController = async (req, res) => {
     res.status(201).json({
       message: "Login successful.",
       authToken,
+      role: user.role
     });
   } catch (error) {
     console.error(error.message);
@@ -1498,8 +1510,8 @@ export const loginBankController = async (req, res) => {
 
 
 
-const MY_EMAIL="jiteshgopale26@gmail.com"
-const MY_PASSWORD="gaxohvmyinvnieoi"
+const MY_EMAIL="jiteshavs45@gmail.com"
+const MY_PASSWORD="lvtwexgczivtnxvq"
 
 // Email-sending function using Nodemailer
 function sendEmail({ recipient_email, OTP }) {
@@ -1677,6 +1689,26 @@ export const getBank = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+export const getAllBanks = async (req, res) => {
+  try {
+    console.log("User ID from req.user:", req.user); // Debug log
+    // You can still use req.user to access the authenticated user information, if needed
+    
+    // Fetch all banks (all documents in the Credentials collection)
+    const banks = await Credentials.find(); 
+    
+    if (!banks || banks.length === 0) {
+      return res.status(404).json({ error: "No banks found" });
+    }
+
+    res.json(banks); // Send all banks as response
+  } catch (error) {
+    console.error("Error in getAllBanks:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 // Controller to create a new branch
 export const createNewBranch = async (req, res) => {

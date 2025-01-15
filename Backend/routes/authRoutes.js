@@ -20,6 +20,7 @@ import { getVerifiedUsers } from '../controllers/authController.js';
 import { createBankController } from '../controllers/authController.js';
 import { loginBankController } from '../controllers/authController.js';
 import { getBank } from '../controllers/authController.js';
+import { getAllBanks } from '../controllers/authController.js';
 import { VerifyBankOTP } from '../controllers/authController.js';
 import { sendBankEmail } from '../controllers/authController.js';
 import { createNewBranch } from '../controllers/authController.js';
@@ -79,6 +80,8 @@ router.post('/bankuser', createBankController);
 router.post('/banklogin', loginBankController);
 
 router.get('/getbank',fetchuser, getBank);
+
+router.get('/getallbank',fetchuser, getAllBanks);
 
 router.post('/send_recovery_email', sendBankEmail);
 

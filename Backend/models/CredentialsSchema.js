@@ -47,7 +47,13 @@ const CredentialsSchema = new Schema(
   otpExpiration: { 
   type: Date,
   default: null,
-  }
+  },
+  role: {  // Add role field
+    type: String,
+    enum: ['admin', 'user'],
+    default: 'user', // Default role is 'user'
+    required: true,
+  },
   },
   
 );
