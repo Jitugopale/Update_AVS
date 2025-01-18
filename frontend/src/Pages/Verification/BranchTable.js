@@ -182,8 +182,8 @@ const BranchTable = () => {
         </td> */}
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.srNo}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.bankName || "Name not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.bankId || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.bankName || "Name not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.branchName || "DOB not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>

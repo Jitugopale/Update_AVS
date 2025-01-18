@@ -57,14 +57,23 @@ const LoginPage = () => {
         password,
       });
   
-      // Check if the response contains authToken
-      if (response.data.authToken) {
+      // Log the full response data for debugging
+      console.log("Login response:", response.data);
+  
+      // Check if the response contains the expected authToken and role
+      if (response.data.authToken && response.data.role) {
+        const { authToken, role } = response.data;
         setMessage(response.data.message);
-        localStorage.setItem('token', response.data.authToken); // Store the authToken in localStorage
-        console.log("Login successful, redirecting to Dashboard...");
-        navigate('/dashboard'); // Redirect to the dashboard
+        localStorage.setItem('token', authToken); // Store the authToken in localStorage
+  
+        // Redirect based on the role
+        if (role === "admin") {
+          navigate('/adminDashboard'); // Redirect to admin dashboard
+        } else if (role === "user") {
+          navigate('/dashboard'); // Redirect to user dashboard
+        }
       } else {
-        setError("Login failed. No token received.");
+        setError("Login failed. No token or role received.");
       }
     } catch (err) {
       if (err.response && err.response.data) {
@@ -74,7 +83,6 @@ const LoginPage = () => {
       }
     }
   };
-  
   
 
    // Function to handle password reset

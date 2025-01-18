@@ -12,10 +12,10 @@ const Slide = () => {
       const [CreditisOpen, setCreditIsOpen] = useState(false);
       const [BranchisOpen, setBranchIsOpen] = useState(false);
       const [UserisOpen, setUserIsOpen] = useState(false);
-      const [user, setUser] = useState(null);
-      const [loading, setLoading] = useState(true); // State for loading
-      const [error, setError] = useState(null);
-    
+       const [user, setUser] = useState(null);
+        const [loading, setLoading] = useState(true); // State for loading
+        const [error, setError] = useState(null);
+      
     
     const toggleSubmenu = (e) => {
         e.preventDefault();
@@ -98,12 +98,14 @@ const Slide = () => {
       }, []);
       
       const { role } = user || {};
+  
+
       
   return (
     <>
       <nav id="sidebar">
         <ul className="list-unstyled components">
-        <li>
+           <li>
           {/* Conditionally render based on user role */}
           {role === 'admin' ? (
             <Link to="/adminDashboard">Admin Dashboard</Link>
@@ -149,10 +151,10 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="pan">PAN</Link>
+                  <Link to="pan"  className="color">PAN</Link>
                   </li>
                   <li>
-                    <Link to="pandetail">PAN DETAIL</Link>
+                  <Link to="pandetail"  className="color">PAN DETAIL</Link>
                   </li>
                 </ul>
               </li>
@@ -177,13 +179,13 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="aadhaar">AADHAAR VERIFICATION</Link>
+                  <Link to="aadhaar"  className="color">AADHAAR VERIFICATION</Link>
                   </li>
                   <li>
-                    <Link to="voter">VOTER</Link>
+                  <Link to="voter"  className="color">VOTER</Link>
                   </li>
                   <li>
-                    <Link to="passport">PASSPORT ID</Link>
+                  <Link to="passport"  className="color">PASSPORT ID</Link>
                   </li>
                 </ul>
               </li>
@@ -208,10 +210,10 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="gst">GST VERIFICATION</Link>
+                  <Link to="gst"  className="color">GST VERIFICATION</Link>
                   </li>
                   <li>
-                    <Link to="udyam">UDYAM AADHAAR</Link>
+                  <Link to="udyam"  className="color">UDYAM AADHAAR</Link>
                   </li>
                 </ul>
               </li>
@@ -236,7 +238,7 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="credit">COMBO CIBIL</Link>
+                  <Link to="credit"  className="color">COMBO CIBIL</Link>
                   </li>
                 </ul>
               </li>
@@ -296,7 +298,7 @@ const Slide = () => {
           {/* <li>
             <Link to="#">Branch Create</Link>
           </li> */}
-          <li>
+          {/* <li>
             <Link to="#">User Branch Change</Link>
           </li>
           <li>
@@ -304,7 +306,7 @@ const Slide = () => {
           </li>
           <li>
             <Link to="#">Complaint</Link>
-          </li>
+          </li> */}
           <li style={{marginLeft:'70px'}} className='mt-2'>
             <Logout/>
           </li>
