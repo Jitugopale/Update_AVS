@@ -247,7 +247,7 @@ const Slide = () => {
           </li>
 
           <li>
-            <Link to="#">Password Change</Link>
+            <Link to="passwordChange">Password Change</Link>
           </li>
           <li>
                 <Link

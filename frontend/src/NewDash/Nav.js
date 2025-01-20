@@ -157,7 +157,7 @@ const Nav = () => {
       </nav> */}
       <nav className="container-fluid navbar navbar-expand-lg navbar-light bg-light height">
         <div className="d-flex">
-          <button type="button" id="sidebarCollapse" className="btn btn-info">
+          <button type="button" id="sidebarCollapse" className="btn btn-info" style={{height:'40px'}}>
             <i className="fas fa-align-left" />
             <i className="bx bx-menu"></i>
         </button>

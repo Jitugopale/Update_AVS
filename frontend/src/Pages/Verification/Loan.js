@@ -76,13 +76,13 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
                   <td>
                     <strong>Date:</strong>
                   </td>
-                  <td>{verifiedUsers?.[0]?.formattedDate}</td>
+                  <td>{data?.formattedDate}</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Time:</strong>
                   </td>
-                  <td>09:46:12</td>
+                  <td>{data?.formattedTime}</td>
                 </tr>
                 {/* <tr>
                   <td>

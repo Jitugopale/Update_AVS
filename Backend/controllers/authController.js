@@ -655,6 +655,8 @@ export const creditReportCheckController = async (req, res) => {
           status: 'success',
           message: 'CREDIT is already verified.',
           verifiedData: existingCredit.verifiedData, // Returning existing verified data
+          formattedTime :existingCredit.formattedDate,
+          formattedDate :existingCredit.formattedTime
       });
   }
 
@@ -724,28 +726,28 @@ export const creditReportCheckController = async (req, res) => {
       const newCredit = new CREDIT({
         document_id,
         status: 'verified',
-        createdAt: currentDateTime, // ISO timestamp
-        formattedDate, // "DD-MM-YYYY"
-        formattedTime, // "hh:mm AM/PM"
-        enquiryId, // Store generated enquiryId
-        verifiedData: response.data, // Store response data in verifiedData field
+        createdAt: currentDateTime,
+        formattedDate, 
+        formattedTime,
+        enquiryId, 
+        verifiedData: response.data, 
       });
   
         await newCredit.save();
         await updateVerificationCount('credit');
   
-        req.body.verifiedData = { full_name, pan_number };
-  
         return res.status(200).json({
           status: 'success',
-          message: response.data.message || 'PAN Card verified successfully.',
-          verifiedData: { full_name, pan_number },
+          message: response.data.message || 'CREDIT verified successfully.',
+          verifiedData:response.data,
+          formattedDate,
+          formattedTime
         });
       } else {
         return res.status(400).json({
           status: 'error',
           message:
-            response.data.message || 'PAN verification failed. Invalid details.',
+            response.data.message || 'CREDIT verification failed. Invalid details.',
         });
       }
 

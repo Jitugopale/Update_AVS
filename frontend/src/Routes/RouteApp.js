@@ -23,6 +23,7 @@ import BranchCreate from "../Pages/Verification/BranchCreate";
 import UserCreate from "../Pages/Verification/UserCreate";
 import AdminDashboard from "../Pages/Verification/AdminDashboard";
 import AshADmin from "../Layout/AshADmin";
+import PasswordChange from "../NewDash/PasswordChange";
 
 const RouteApp = () => {
   return (
@@ -51,6 +52,7 @@ const RouteApp = () => {
               <Route path="main" element={<MainPdf/>}/>
               <Route path="branch" element={<BranchCreate/>}/>
               <Route path="userCreate" element={<UserCreate/>}/>
+              <Route path="passwordChange" element={<PasswordChange/>}/>
           </Route>
           <Route path="/adminDashboard" element={<AshADmin/>}>
               {/* <Route path="adminDashboard" element={<AdminDashboard />} /> */}
@@ -67,6 +69,7 @@ const RouteApp = () => {
               <Route path="main" element={<MainPdf/>}/>
               <Route path="branch" element={<BranchCreate/>}/>
               <Route path="userCreate" element={<UserCreate/>}/>
+              <Route path="passwordChange" element={<PasswordChange/>}/>
           </Route>
         </Routes>
       </Router>

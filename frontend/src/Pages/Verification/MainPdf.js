@@ -68,16 +68,12 @@ const MainPdf = ({ data, enquiryId }) => {
                 
                 <tr>
                   <th>Date</th>
-                  <td style={{ paddingLeft: '4px' }}>
-    {verifiedUsers?.[1]?.formattedDate} {/* Assuming you're fetching user data */}
-  </td>
+                  <td style={{ paddingLeft: '4px' }}>{data?.formattedDate}</td>
 
                 </tr>
                 <tr>
                   <th>Time</th>
-                  <td><td style={{ paddingLeft: '4px' }}>
-    {verifiedUsers?.[0]?.formattedTime} {/* Assuming you're fetching user data */}
-  </td></td>
+                  <td><td style={{ paddingLeft: '4px' }}>{data?.formattedTime}</td></td>
                 </tr>
 
               </tbody>

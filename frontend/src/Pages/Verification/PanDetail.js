@@ -438,7 +438,7 @@ const PanDetail = () => {
               Aadhaar Seeding Status :
             </td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.aadhaarSeedingStatus}
+            {responseData.verifiedData?.data?.aadhaarSeedingStatus === "NULL" ? "Not Identified" : responseData.verifiedData?.data?.aadhaarSeedingStatus}
             </td>
           </tr>
           {/* <tr>

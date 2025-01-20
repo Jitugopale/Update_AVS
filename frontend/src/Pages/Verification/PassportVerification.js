@@ -55,10 +55,10 @@ const PassportVerification = () => {
       // Mapping the verified users data to the format required for Excel
       const excelData = verifiedUsers.map((user, index) => ({
         'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-        'PassPort ID	': responseData.data.file_number,
-        'Name': responseData.data.full_name,
-        'DOB': responseData.data.dob,
-        'Date of Application': responseData.data.date_of_application,
+        'PassPort ID	': user.verifiedData.data.file_number,
+        'Name': user.verifiedData.data.full_name,
+        'DOB': user.verifiedData.data.dob,
+        'Date of Application': user.verifiedData.data.date_of_application,
         'Verification Date': user.formattedDate,
       }));
     

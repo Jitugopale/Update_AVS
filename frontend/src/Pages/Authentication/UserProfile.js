@@ -72,7 +72,7 @@ function UserProfile() {
     window.location.reload(); // Reload page to reflect changes
   };
 
-  const { bankName } = user || {};
+  const { bankName,userId,email } = user || {};
 
   return (
     <div>
@@ -108,12 +108,12 @@ function UserProfile() {
               <input type="file" accept="image/*" onChange={handlePhotoUpload} style={styles.fileInput} />
             </div>
             <div style={styles.userData}>
-              <p style={styles.userInfo}>First Name: {bankName}</p>
-              <p style={styles.userInfo}>Last Name: {bankName}</p>
-              <p style={styles.userInfo}>Email: {bankName}</p>
-              <p style={styles.userInfo}>Address: {bankName}</p>
+              <p style={styles.userInfo}>BankName: {bankName}</p>
+              <p style={styles.userInfo}>User ID: {userId}</p>
+              <p style={styles.userInfo}>Email: {email}</p>
+              {/* <p style={styles.userInfo}>Address: {bankName}</p>
               <p style={styles.userInfo}>Phone Number: {bankName}</p>
-              <p style={styles.userInfo}>City: {bankName}</p>
+              <p style={styles.userInfo}>City: {bankName}</p> */}
             </div>
             <button onClick={handleLogout} style={styles.logoutButton}>Logout</button>
           </div>
