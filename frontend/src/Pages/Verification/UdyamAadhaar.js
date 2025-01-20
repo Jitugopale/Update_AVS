@@ -69,9 +69,12 @@ const UdyamAadhaar = () => {
       const excelData = verifiedUsers.map((user, index) => ({
         'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
       'Udyam No': user.verifiedData.data.enterprise_data.document_id,
-      'Name': user.verifiedData.data.enterprise_data.name,
-      'Email': user.verifiedData.data.enterprise_data.email,
+      'Enterprise Name': user.verifiedData.data.enterprise_data.name,
       'Major Activity': user.verifiedData.data.enterprise_data.major_activity,
+      'Enterprise Type': user.verifiedData.data.enterprise_data.enterprise_type,
+      'Organization Type': user.verifiedData.data.enterprise_data.organization_type ,
+      'Mobile': user.verifiedData.data.enterprise_data.mobile,
+      'Email': user.verifiedData.data.enterprise_data.email,
       'Address': [
         user?.verifiedData?.data?.enterprise_data?.address?.door_no,
         user?.verifiedData?.data?.enterprise_data?.address?.building,
@@ -85,6 +88,13 @@ const UdyamAadhaar = () => {
       ]
         .filter(Boolean) // Exclude undefined or null values
         .join(", ") || "No Address Available", // Concatenated address      'Date of Registration': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
+        'Udyam Registration Date': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
+        'MSME DI': user.verifiedData.data.enterprise_data.msme_di,
+        'DIC': user.verifiedData.data.enterprise_data.dic,
+        'Date of Incorporation': user.verifiedData.data.enterprise_data.date_of_incorporation,
+        'Social Category': user.verifiedData.data.enterprise_data.social_category,
+        // 'Enterprise Units': user.verifiedData.data.enterprise_data.enterprise_units.map(unit => unit.name).join(", "),
+          
       'Verification Date': user.formattedDate,
       }));
     
@@ -319,7 +329,7 @@ const UdyamAadhaar = () => {
       </div>
 
       {/* Show response data below the card */}
-      {!isVerified  && responseData && (
+      {/* {!isVerified  && responseData && (
         <div className="container mt-5">
           <h3>Verification Result</h3>
           <div className="card shadow p-3">
@@ -336,7 +346,7 @@ const UdyamAadhaar = () => {
             <p><strong>Date of Udyam Registration:</strong> {responseData?.verifiedData?.data?.enterprise_data?.date_of_udyam_registration}</p>
             <p><strong>Dic:</strong> {responseData?.verifiedData?.data?.enterprise_data?.dic}</p>
             <p><strong>Msme_Di:</strong> {responseData?.verifiedData?.data?.enterprise_data?.msme_di}</p>
-            <p><strong>Social Category:</strong> {responseData?.verifiedData?.data?.enterprise_data?.social_category}</p>
+            <p><strong>Social Category:</strong> {responseData?.verifiedData?.data?.enterprise_data?.social_category}</p> */}
 
             {/* <h5 className="mt-3">Nic Data</h5>
 {responseData?.verifiedData?.data?.enterprise_data?.nic_data ? (
@@ -361,11 +371,109 @@ const UdyamAadhaar = () => {
   <p>No Enterprise Units available.</p>
 )} */}
 
-
+{/* 
           </div>
           <button className="btn btn-success mt-3" onClick={generatePDF}>Download PDF</button>
         </div>
-      )}
+      )} */}
+
+{!isVerified && responseData && (
+  <div className="container mt-5 d-flex justify-content-center">
+    <div className="card shadow-lg p-4" style={{ borderRadius: '10px', backgroundColor: '#f8f9fa', maxWidth: '800px' }}>
+      <table className="table table-bordered" style={{ fontSize: '16px' }}>
+        <thead>
+          <tr>
+            <th colSpan="2" className="text-center" style={{ fontSize: '28px', fontWeight: 'bold', color: '#686868' }}>
+              VERIFICATION DETAILS
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Status:</td>
+            <td style={{ textAlign: 'left', color: responseData.status ? 'green' : 'red' }}>
+              {responseData.status ? "Verified" : "Not Verified"}
+            </td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Document ID:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.document_id}</td>
+          </tr>
+          {/* Existing personal details */}
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Enterprise Name:</td>
+            <td style={{ textAlign: 'left' }}> {responseData?.verifiedData?.data?.enterprise_data?.name}</td>
+          </tr>
+          {/* Add other personal details here */}
+          
+          {/* Enterprise Details */}
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Enterprise Type:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.enterprise_type}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Major Activity:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.major_activity}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Organization_type Type:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.organization_type}</td>
+          </tr>
+          {/* Add other enterprise details here */}
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Mobile:</td>
+            <td style={{ textAlign: 'left' }}>
+            {responseData?.verifiedData?.data?.enterprise_data?.mobile}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Email:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.email}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Address:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.address?.door_no}, {responseData?.verifiedData?.data?.enterprise_data?.address?.building}, {responseData?.verifiedData?.data?.enterprise_data?.address?.area}, {responseData?.verifiedData?.data?.enterprise_data?.address?.city}, {responseData?.verifiedData?.data?.enterprise_data?.address?.state} - {responseData?.verifiedData?.data?.enterprise_data?.address?.pincode}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Incorporation:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.date_of_incorporation}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Udyam Registration:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.date_of_udyam_registration}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Dic:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.dic}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Msme_Di:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.msme_di}</td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Social Category:</td>
+            <td style={{ textAlign: 'left' }}>{responseData?.verifiedData?.data?.enterprise_data?.social_category}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="text-center mt-4">
+        <button
+          className="btn btn-success btn-lg"
+          style={{
+            fontSize: '16px',
+            padding: '12px 20px',
+            borderRadius: '5px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          }}
+          onClick={generatePDF}
+        >
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       <UdyamTable/>
     </div>
   );

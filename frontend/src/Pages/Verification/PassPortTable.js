@@ -60,11 +60,14 @@ const PassPortTable = () => {
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user,index) => ({
       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'PassPort ID	': user.verifiedData.data.file_number,
-      'Name': user.verifiedData.data.full_name,
-      'DOB': user.verifiedData.data.dob,
-      'Date of Application': user.verifiedData.data.date_of_application,
-      'Verification Date': user.formattedDate,
+      'Passport ID': user?.verifiedData?.data?.file_number || "N/A",  // Passport ID
+        'Name': user?.verifiedData?.data?.full_name || "N/A",  // Full name
+        'DOB': user?.verifiedData?.data?.dob || "N/A",  // Date of Birth
+        'Date of Application': user?.verifiedData?.data?.date_of_application || "N/A",  // Date of Application
+        'Application Type': user?.verifiedData?.data?.application_type || "N/A",  // Application Type
+        'Status': user?.verifiedData?.data?.status ? 'Verified' : 'Not Verified',  // Status
+        'Reference ID': user?.verifiedData?.data?.reference_id || "N/A",
+        'Verification Date': user.formattedDate,
     }));
   
     // Prepare data for Excel

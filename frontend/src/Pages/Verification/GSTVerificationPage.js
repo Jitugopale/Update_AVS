@@ -67,14 +67,29 @@ const GSTVerificationPage = () => {
     const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
       const excelData = verifiedUsers.map((user, index) => ({
-        'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+        'SrNo': index + 1,  // Serial number for the row
         'GST No': user.verifiedData.data.gstin,
         'PAN No': user.verifiedData.data.pan_number,
         'Business Name': user.verifiedData.data.business_name,
         'Date of Registration': user.verifiedData.data.date_of_registration,
         'GST Status': user.verifiedData.data.gstin_status,
+        'Status': user.responseData?.status === 'success' ? 'Verified' : 'Not Verified',
+        'State Jurisdiction': user.verifiedData.data.state_jurisdiction,
+        'Taxpayer Type': user.verifiedData.data.taxpayer_type,
+        'Filing Status (Latest GSTR1)': user.verifiedData.data.filing_status?.[0]?.[0]?.status || 'N/A',
+        'Last Filed GSTR3B': user.verifiedData.data.filing_status?.[0]?.[1]?.status || 'N/A',
+        'Nature of Core Business': user.verifiedData.data.nature_of_core_business_activity_description,
+        'Constitution of Business': user.verifiedData.data.constitution_of_business,
+        'Center Jurisdiction': user.verifiedData.data.center_jurisdiction,
+        'Address': user.verifiedData.data.address || 'No Address Available',
+        'Field Visit Conducted': user.verifiedData.data.field_visit_conducted || 'No Field Visit',
+        'Nature of Business Activities': user.verifiedData.data.nature_bus_activities?.join(', ') || 'N/A',
+        'Aadhaar Validation': user.verifiedData.data.aadhaar_validation || 'N/A',
+        'Aadhaar Validation Date': user.verifiedData.data.aadhaar_validation_date || 'N/A',
+        'Date of Cancellation': user.verifiedData.data.date_of_cancellation || 'N/A',
         'Verification Date': user.formattedDate,
       }));
+      
     
       // Create a new workbook
       const wb = XLSX.utils.book_new();
@@ -277,7 +292,7 @@ const inputStyle = {
  </div>   
   
     {/* Show response data below the card */}
-    {responseData && (
+    {/* {responseData && (
       <div className="card shadow p-3 mt-5">
         <p><strong>Status:</strong> {responseData?.status === 'success' ? 'Verified' : 'Not Verified'}</p>
         <p><strong>GSTIN:</strong> {responseData.verifiedData.data.gstin}</p>
@@ -297,7 +312,7 @@ const inputStyle = {
         <p><strong>Nature of Business Activities:</strong> {responseData.verifiedData.data.nature_bus_activities?.join(', ')}</p>
         <p><strong>Aadhaar Validation:</strong> {responseData.verifiedData.data.aadhaar_validation}</p>
         <p><strong>Aadhaar Validation Date:</strong> {responseData.verifiedData.data.aadhaar_validation_date}</p>
-        <p><strong>Date of Cancellation:</strong> {responseData.verifiedData.data.date_of_cancellation}</p>
+        <p><strong>Date of Cancellation:</strong> {responseData.verifiedData.data.date_of_cancellation}</p> */}
   
         {/* Display Enterprise Units if they exist */}
         {/* <h5 className="mt-3">Enterprise Units</h5>
@@ -337,13 +352,125 @@ const inputStyle = {
           <p>No Filing Frequency available.</p>
         )}
    */}
-        <div>
+        {/* <div>
         <button className="btn btn-success mt-3" onClick={generatePDF}>
           Download PDF
         </button>
         </div>
       </div>
-    )}
+    )} */}
+    {!isVerified &&responseData && (
+     <div className="container mt-5 d-flex justify-content-center">
+     <div className="card shadow-lg p-4" style={{ borderRadius: '10px', backgroundColor: '#f8f9fa', maxWidth: '800px' }}>
+       <table className="table table-bordered" style={{ fontSize: '16px' }}>
+         <thead>
+           <tr>
+             <th colSpan="2" className="text-center" style={{ fontSize: '28px', fontWeight: 'bold',color:'#686868' }}>
+               VERIFICATION DETAILS
+             </th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Status :</td>
+             <td style={{ textAlign: 'left', color: responseData.status ? 'green' : 'red' }}>
+             {responseData?.status === 'success' ? 'Verified' : 'Not Verified'}
+            </td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>GSTIN :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.gstin}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Business Name :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.business_name}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>State Jurisdiction :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.state_jurisdiction}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Taxpayer Type: :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.taxpayer_type}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>GST Status :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.gstin_status}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Filing Status (Latest GSTR1) :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.filing_status?.[0]?.[0]?.status || 'N/A'}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Last Filed GSTR3B:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.filing_status?.[0]?.[1]?.status || 'N/A'}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Registration:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.date_of_registration}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Nature of Core Business:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.nature_of_core_business_activity_description}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Constitution of Business:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.constitution_of_business}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Center Jurisdiction:</td>
+             <td style={{ textAlign: 'left' }}> {responseData.verifiedData.data.center_jurisdiction}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>State Jurisdiction:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.state_jurisdiction}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Address:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.address}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Field Visit Conducted:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.field_visit_conducted}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Nature of Business Activities:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.nature_bus_activities?.join(', ')}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Aadhaar Validation:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.aadhaar_validation}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Aadhaar Validation Date:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.aadhaar_validation_date}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Cancellation:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.verifiedData.data.date_of_cancellation}</td>
+           </tr>
+         </tbody>
+       </table>
+   
+       <div className="text-center mt-4">
+         <button
+           className="btn btn-success btn-lg"
+           style={{
+             fontSize: '16px',
+             padding: '12px 20px',
+             borderRadius: '5px',
+             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+           }}
+           onClick={generatePDF}
+         >
+           Download PDF
+         </button>
+       </div>
+     </div>
+     
+   </div>
+   
+      )}
     <GSTTable/>
   </div>
 

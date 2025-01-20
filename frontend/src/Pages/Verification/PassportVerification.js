@@ -53,14 +53,17 @@ const PassportVerification = () => {
 
     const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
-      const excelData = verifiedUsers.map((user, index) => ({
-        'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-        'PassPort ID	': user.verifiedData.data.file_number,
-        'Name': user.verifiedData.data.full_name,
-        'DOB': user.verifiedData.data.dob,
-        'Date of Application': user.verifiedData.data.date_of_application,
+        const excelData = verifiedUsers.map((user, index) => ({
+        'SrNo': index + 1,  // Serial number
+        'Passport ID': user?.verifiedData?.data?.file_number || "N/A",  // Passport ID
+        'Name': user?.verifiedData?.data?.full_name || "N/A",  // Full name
+        'DOB': user?.verifiedData?.data?.dob || "N/A",  // Date of Birth
+        'Date of Application': user?.verifiedData?.data?.date_of_application || "N/A",  // Date of Application
+        'Application Type': user?.verifiedData?.data?.application_type || "N/A",  // Application Type
+        'Status': user?.verifiedData?.data?.status ? 'Verified' : 'Not Verified',  // Status
+        'Reference ID': user?.verifiedData?.data?.reference_id || "N/A",
         'Verification Date': user.formattedDate,
-      }));
+    }));
     
       // Create a new workbook
       const wb = XLSX.utils.book_new();
@@ -338,8 +341,109 @@ const PassportVerification = () => {
         </div>
       </div>
 
+      {!isVerified &&responseData && (
+     <div className="container mt-5 d-flex justify-content-center">
+     <div className="card shadow-lg p-4" style={{ borderRadius: '10px', backgroundColor: '#f8f9fa', maxWidth: '800px' }}>
+       <table className="table table-bordered" style={{ fontSize: '16px' }}>
+         <thead>
+           <tr>
+             <th colSpan="2" className="text-center" style={{ fontSize: '28px', fontWeight: 'bold',color:'#686868' }}>
+               VERIFICATION DETAILS
+             </th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Status :</td>
+             <td style={{ textAlign: 'left', color: responseData.status ? 'green' : 'red' }}>
+             {responseData.status ? 'Verified' : 'Not Verified'}
+            </td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>File Number :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.file_number}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Full Name :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.full_name}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Reference ID :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.reference_id}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Birth :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.dob}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Application :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.date_of_application}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Application Type :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.application_type}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Status :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.status}</td>
+           </tr>
+           {/* <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>District:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.district}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Polling Station:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.polling_station}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Assembly Constituency:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Constituency Number:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency_number}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Number:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.part_number}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Name:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.part_name}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Name:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_name}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Number:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_number}</td>
+           </tr> */}
+         </tbody>
+       </table>
+   
+       <div className="text-center mt-4">
+         <button
+           className="btn btn-success btn-lg"
+           style={{
+             fontSize: '16px',
+             padding: '12px 20px',
+             borderRadius: '5px',
+             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+           }}
+           onClick={generatePDF}
+         >
+           Download PDF
+         </button>
+       </div>
+     </div>
+     
+   </div>
+   
+      )}
+
       {/* Show response data below the card */}
-      {responseData && (
+      {/* {responseData && (
         <div className="container mt-5">
           <h3>Verification Result</h3>
           <div className="card shadow p-3">
@@ -353,12 +457,12 @@ const PassportVerification = () => {
             <p><strong>Status:</strong> {responseData.data.status}</p>
           </div>
 
-          {/* Button to generate PDF */}
+          
           <div>
            <button className="btn btn-success mt-3" onClick={generatePDF}>Download PDF</button>
           </div>
         </div>
-      )}
+      )} */}
       <PassPortTable/>
     </div>
   );

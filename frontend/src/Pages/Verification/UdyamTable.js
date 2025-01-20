@@ -59,26 +59,36 @@ const UdyamTable = () => {
     }
   
     // Map the filtered data to match the desired format for Excel export
-    const exportData = filteredUsers.map((user,index) => ({
+    const exportData = verifiedUsers.map((user, index) => ({
       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'Udyam No': user.verifiedData.data.enterprise_data.document_id,
-      'Name': user.verifiedData.data.enterprise_data.name,
-      'Email': user.verifiedData.data.enterprise_data.email,
-      'Major Activity': user.verifiedData.data.enterprise_data.major_activity,
-      'Address': [
-        user?.verifiedData?.data?.enterprise_data?.address?.door_no,
-        user?.verifiedData?.data?.enterprise_data?.address?.building,
-        user?.verifiedData?.data?.enterprise_data?.address?.area,
-        user?.verifiedData?.data?.enterprise_data?.address?.block,
-        user?.verifiedData?.data?.enterprise_data?.address?.street,
-        user?.verifiedData?.data?.enterprise_data?.address?.city,
-        user?.verifiedData?.data?.enterprise_data?.address?.district,
-        user?.verifiedData?.data?.enterprise_data?.address?.state,
-        user?.verifiedData?.data?.enterprise_data?.address?.pincode,
-      ]
-        .filter(Boolean) // Exclude undefined or null values
-        .join(", ") || "No Address Available", // Concatenated address      'Date of Registration': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
-      'Verification Date': user.formattedDate,
+    'Udyam No': user.verifiedData.data.enterprise_data.document_id,
+    'Enterprise Name': user.verifiedData.data.enterprise_data.name,
+    'Major Activity': user.verifiedData.data.enterprise_data.major_activity,
+    'Enterprise Type': user.verifiedData.data.enterprise_data.enterprise_type,
+    'Organization Type': user.verifiedData.data.enterprise_data.organization_type ,
+    'Mobile': user.verifiedData.data.enterprise_data.mobile,
+    'Email': user.verifiedData.data.enterprise_data.email,
+    'Address': [
+      user?.verifiedData?.data?.enterprise_data?.address?.door_no,
+      user?.verifiedData?.data?.enterprise_data?.address?.building,
+      user?.verifiedData?.data?.enterprise_data?.address?.area,
+      user?.verifiedData?.data?.enterprise_data?.address?.block,
+      user?.verifiedData?.data?.enterprise_data?.address?.street,
+      user?.verifiedData?.data?.enterprise_data?.address?.city,
+      user?.verifiedData?.data?.enterprise_data?.address?.district,
+      user?.verifiedData?.data?.enterprise_data?.address?.state,
+      user?.verifiedData?.data?.enterprise_data?.address?.pincode,
+    ]
+      .filter(Boolean) // Exclude undefined or null values
+      .join(", ") || "No Address Available", // Concatenated address      'Date of Registration': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
+      'Udyam Registration Date': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
+      'MSME DI': user.verifiedData.data.enterprise_data.msme_di,
+      'DIC': user.verifiedData.data.enterprise_data.dic,
+      'Date of Incorporation': user.verifiedData.data.enterprise_data.date_of_incorporation,
+      'Social Category': user.verifiedData.data.enterprise_data.social_category,
+      // 'Enterprise Units': user.verifiedData.data.enterprise_data.enterprise_units.map(unit => unit.name).join(", "),
+        
+    'Verification Date': user.formattedDate,
     }));
   
     // Prepare data for Excel
@@ -226,7 +236,7 @@ const handleDownloadPdf = (user) => {
     const outerX = 10;
     const outerY = 62;
     const outerWidth = 190;
-    const outerHeight = 170;  // Increased to fit all the new data
+    const outerHeight = 173;  // Increased to fit all the new data
 
     // Draw the outer border
     doc.setDrawColor(0);
@@ -281,23 +291,23 @@ const handleDownloadPdf = (user) => {
 
     // Footer with signatures
     doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 241);
-    doc.text("Signature of the Branch Manager", 110, 241);
+    doc.text("Signature of the Authorised Signatory", 14, 245);
+    doc.text("Signature of the Branch Manager", 110, 245);
 
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 250);
-    doc.text("Name: __________________", 110, 250);
+    doc.text("Name: __________________", 14, 255);
+    doc.text("Name: __________________", 110, 255);
 
-    doc.text("Designation: ____________", 14, 260);
-    doc.text("Designation: ____________", 110, 260);
+    doc.text("Designation: ____________", 14, 265);
+    doc.text("Designation: ____________", 110, 265);
 
-    doc.text("Phone no.: ______________", 14, 270);
-    doc.text("Date: ___________________", 110, 270);
+    doc.text("Phone no.: ______________", 14, 275);
+    doc.text("Date: ___________________", 110, 275);
 
     // Bank Seal
     doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 283);
-    doc.text("Verified By : User", 120, 283);
+    doc.text("(Bank Seal)", 14, 288);
+    doc.text("Verified By : User", 120, 288);
 
     // Save PDF
     const fileName = `${user.verifiedData.data.enterprise_data.name}_verification_certificate.pdf`;

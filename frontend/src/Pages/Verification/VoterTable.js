@@ -57,15 +57,23 @@ const VoterTable = () => {
   
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user, index) => ({
-      'SrNo': index + 1, // Serial number
-      'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A", // Voter ID
-      'Name': user?.verifiedData?.data?.name || "N/A", // Name
-      'Age': user?.verifiedData?.data?.age || "N/A", // Age
-      'Gender': user?.verifiedData?.data?.gender || "N/A", // Gender
-      'District': user?.verifiedData?.data?.district || "N/A", // District
-      'State': user?.verifiedData?.data?.state || "N/A", // State
-      'Polling Station': user?.verifiedData?.data?.polling_station || "N/A", // Polling station
-      'Verification Date': user?.formattedDate || "N/A", // Verification date
+      'SrNo': index + 1,  // Serial number
+        'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A",
+        'Name': user?.verifiedData?.data?.name || "N/A",
+        'Age': user?.verifiedData?.data?.age || "N/A",
+        'Gender': user?.verifiedData?.data?.gender || "N/A",
+        'District': user?.verifiedData?.data?.district || "N/A",
+        'State': user?.verifiedData?.data?.state || "N/A",
+        'Polling Station': user?.verifiedData?.data?.polling_station || "N/A",
+        'Relation Name': user?.verifiedData?.data?.relation_name || "N/A",
+        'Relation Type': user?.verifiedData?.data?.relation_type || "N/A",
+        'Assembly Constituency': user?.verifiedData?.data?.assembly_constituency || "N/A",
+        'Constituency Number': user?.verifiedData?.data?.assembly_constituency_number || "N/A",
+        'Part Number': user?.verifiedData?.data?.part_number || "N/A",
+        'Part Name': user?.verifiedData?.data?.part_name || "N/A",
+        'Parliamentary Name': user?.verifiedData?.data?.parliamentary_name || "N/A",
+        'Parliamentary Number': user?.verifiedData?.data?.parliamentary_number || "N/A",
+        'Verification Date': user?.formattedDate || "N/A",
     }));
     
     // Prepare data for Excel

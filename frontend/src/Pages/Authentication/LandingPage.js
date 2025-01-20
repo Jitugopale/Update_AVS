@@ -41,8 +41,13 @@ import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
-    <div className="container d-flex flex-column justify-content-center align-items-center min-vh-100" role="main">
-      <div className="card p-4 shadow-sm" style={{ maxWidth: '500px', width: '100%' }}>
+    <>
+        <div style={{background:'linear-gradient(to right, #6a11cb, #2575fc'}}>
+        <div className="container d-flex flex-column justify-content-center align-items-center min-vh-100" style={{
+        color: '#fff',
+        fontFamily: 'Arial, sans-serif',
+      }} role="main" >
+      <div className="card p-4 shadow-sm" style={{ maxWidth: '500px', width: '100%', }}>
         <h1 className="heading-landing mb-4 text-center">Welcome to TrueVerify</h1>
         <p className="text-center mb-4">Securely verify various documents online with ease and reliability</p>
         <div className="d-flex justify-content-center mt-4">
@@ -61,6 +66,8 @@ const LandingPage = () => {
         </div>
       </div>
     </div>
+        </div>
+    </>
   );
 };
 

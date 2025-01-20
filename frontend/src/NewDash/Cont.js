@@ -113,7 +113,7 @@ const Cont = () => {
             <h4>Hi, User Name</h4>
             <p className="text-muted">Cheers, and happy activities.</p>
             <p className="font-weight-bold">
-              Wallet Balance: <span>Rs. 47445.56</span>
+              Wallet Balance: <span>Rs. amount</span>
             </p>
             <button className="btn btn-warning btn-sm mt-2">Add Credit</button>
           </div>

@@ -58,13 +58,27 @@ const GSTTable = () => {
   
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user,index) => ({
-      'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'GST No': user.verifiedData.data.gstin,
-      'PAN No': user.verifiedData.data.pan_number,
-      'Business Name': user.verifiedData.data.business_name,
-      'Date of Registration': user.verifiedData.data.date_of_registration,
-      'GST Status': user.verifiedData.data.gstin_status,
-      'Verification Date': user.formattedDate,
+      'SrNo': index + 1,  // Serial number for the row
+        'GST No': user.verifiedData.data.gstin,
+        'PAN No': user.verifiedData.data.pan_number,
+        'Business Name': user.verifiedData.data.business_name,
+        'Date of Registration': user.verifiedData.data.date_of_registration,
+        'GST Status': user.verifiedData.data.gstin_status,
+        'Status': user.responseData?.status === 'success' ? 'Verified' : 'Not Verified',
+        'State Jurisdiction': user.verifiedData.data.state_jurisdiction,
+        'Taxpayer Type': user.verifiedData.data.taxpayer_type,
+        'Filing Status (Latest GSTR1)': user.verifiedData.data.filing_status?.[0]?.[0]?.status || 'N/A',
+        'Last Filed GSTR3B': user.verifiedData.data.filing_status?.[0]?.[1]?.status || 'N/A',
+        'Nature of Core Business': user.verifiedData.data.nature_of_core_business_activity_description,
+        'Constitution of Business': user.verifiedData.data.constitution_of_business,
+        'Center Jurisdiction': user.verifiedData.data.center_jurisdiction,
+        'Address': user.verifiedData.data.address || 'No Address Available',
+        'Field Visit Conducted': user.verifiedData.data.field_visit_conducted || 'No Field Visit',
+        'Nature of Business Activities': user.verifiedData.data.nature_bus_activities?.join(', ') || 'N/A',
+        'Aadhaar Validation': user.verifiedData.data.aadhaar_validation || 'N/A',
+        'Aadhaar Validation Date': user.verifiedData.data.aadhaar_validation_date || 'N/A',
+        'Date of Cancellation': user.verifiedData.data.date_of_cancellation || 'N/A',
+        'Verification Date': user.formattedDate,
     }));
   
     // Prepare data for Excel

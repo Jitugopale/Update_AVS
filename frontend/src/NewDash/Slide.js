@@ -12,6 +12,7 @@ const Slide = () => {
       const [CreditisOpen, setCreditIsOpen] = useState(false);
       const [BranchisOpen, setBranchIsOpen] = useState(false);
       const [UserisOpen, setUserIsOpen] = useState(false);
+      const [PasswordisOpen, setPasswordIsOpen] = useState(false);
        const [user, setUser] = useState(null);
         const [loading, setLoading] = useState(true); // State for loading
         const [error, setError] = useState(null);
@@ -50,6 +51,11 @@ const Slide = () => {
       const toggleUserSubmenu = (e) => {
         e.preventDefault();
         setUserIsOpen((prevState) => !prevState);
+      };
+
+      const togglePasswordSubmenu = (e) => {
+        e.preventDefault();
+        setPasswordIsOpen((prevState) => !prevState);
       };
 
       useEffect(() => {
@@ -247,8 +253,28 @@ const Slide = () => {
           </li>
 
           <li>
-            <Link to="passwordChange">Password Change</Link>
-          </li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={togglePasswordSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={PasswordisOpen}
+                >
+                  Password Change
+                  <i
+                    className={`bx ms-2 ${
+                      PasswordisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${PasswordisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="passwordChange">Password Change</Link>
+                  </li>
+                </ul>
+              </li>
           <li>
                 <Link
                   href="#pageSubmenu"

@@ -61,8 +61,13 @@ const PanDetailTable = () => {
       const exportData = filteredUsers.map((user,index) => ({
         'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
         'Pan No': user.verifiedData.data.idNumber,
-        'Full Name': user.verifiedData.data.fullName,
+        'First Name': user.verifiedData.data.firstName,
         'Fathers Name': user.verifiedData.data.middleName,
+        'Last Name': user.verifiedData.data.lastName,
+        'Full Name': user.verifiedData.data.fullName,
+        'PAN Status::': user.verifiedData.data.panStatus,
+        'Category:': user.verifiedData.data.category,
+        'Aadhaar Seeding Status:': user.verifiedData.data.aadhaarSeedingStatus === "NULL" ? "Not Identified" : user.verifiedData?.data?.aadhaarSeedingStatus,
         'Verification Date': user.formattedDate,
       }));
     
@@ -273,8 +278,16 @@ const handleDownloadPdf = (user) => {
     doc.setFont("helvetica", "bold");
     doc.text("Aadhaar Seeding Status :", contentX + 2, contentY + 85);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.aadhaarSeedingStatus ? user.verifiedData.data.aadhaarSeedingStatus.toString() : "N/A", contentX + 54, contentY + 85);
-  
+    doc.text(
+      user.verifiedData.data.aadhaarSeedingStatus === "NULL"
+        ? "Not Identified"
+        : user.verifiedData.data.aadhaarSeedingStatus
+          ? user.verifiedData.data.aadhaarSeedingStatus.toString()
+          : "N/A",
+      contentX + 54,
+      contentY + 85
+    );
+      
     
     // Footer with signatures
     doc.setFont("helvetica", "bold");
