@@ -14,11 +14,11 @@ const GSTTable = () => {
   const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [users, setUsers] = useState([]); // State to store users list
 
-  const handleDownload = () => {
+  const handleDownloadExcel = () => {
     // Filter the users based on the date range
     const filteredUsers = verifiedUsers.filter((user) => {
       // Parse `formattedDate` into a JavaScript Date object
-      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
       const userVerificationDate = new Date(year, month - 1, day); // Create Date object
   
       let isInDateRange = true;
@@ -59,26 +59,27 @@ const GSTTable = () => {
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user,index) => ({
       'SrNo': index + 1,  // Serial number for the row
-        'GST No': user.verifiedData.data.gstin,
-        'PAN No': user.verifiedData.data.pan_number,
-        'Business Name': user.verifiedData.data.business_name,
-        'Date of Registration': user.verifiedData.data.date_of_registration,
-        'GST Status': user.verifiedData.data.gstin_status,
+        'GST No': user.gstin,
+        'PAN No': user.pan_number,
+        'Business Name': user.business_name,
+        'Legal Name': user.legal_name,
+        'Date of Registration': user.date_of_registration,
+        'GST Status': user.gstin_status,
         'Status': user.responseData?.status === 'success' ? 'Verified' : 'Not Verified',
-        'State Jurisdiction': user.verifiedData.data.state_jurisdiction,
-        'Taxpayer Type': user.verifiedData.data.taxpayer_type,
-        'Filing Status (Latest GSTR1)': user.verifiedData.data.filing_status?.[0]?.[0]?.status || 'N/A',
-        'Last Filed GSTR3B': user.verifiedData.data.filing_status?.[0]?.[1]?.status || 'N/A',
-        'Nature of Core Business': user.verifiedData.data.nature_of_core_business_activity_description,
-        'Constitution of Business': user.verifiedData.data.constitution_of_business,
-        'Center Jurisdiction': user.verifiedData.data.center_jurisdiction,
-        'Address': user.verifiedData.data.address || 'No Address Available',
-        'Field Visit Conducted': user.verifiedData.data.field_visit_conducted || 'No Field Visit',
-        'Nature of Business Activities': user.verifiedData.data.nature_bus_activities?.join(', ') || 'N/A',
-        'Aadhaar Validation': user.verifiedData.data.aadhaar_validation || 'N/A',
-        'Aadhaar Validation Date': user.verifiedData.data.aadhaar_validation_date || 'N/A',
-        'Date of Cancellation': user.verifiedData.data.date_of_cancellation || 'N/A',
-        'Verification Date': user.formattedDate,
+        'State Jurisdiction': user.state_jurisdiction,
+        'Taxpayer Type': user.taxpayer_type,
+        'Filing Status (Latest GSTR1)': user.filing_status?.[0]?.[0]?.status || 'N/A',
+        'Last Filed GSTR3B': user.filing_status?.[0]?.[1]?.status || 'N/A',
+        'Nature of Core Business': user.nature_of_core_business_activity_description,
+        'Constitution of Business': user.constitution_of_business,
+        'Center Jurisdiction': user.center_jurisdiction,
+        'Address': user.address || 'No Address Available',
+        'Field Visit Conducted': user.field_visit_conducted || 'No Field Visit',
+        'Nature of Business Activities': user.nature_bus_activities?.join(', ') || 'N/A',
+        'Aadhaar Validation': user.aadhaar_validation || 'N/A',
+        'Aadhaar Validation Date': user.aadhaar_validation_date || 'N/A',
+        'Date of Cancellation': user.date_of_cancellation || 'N/A',
+        'Verification Date': user.VerifiedDate,
     }));
   
     // Prepare data for Excel
@@ -90,20 +91,27 @@ const GSTTable = () => {
     XLSX.writeFile(workbook, 'filtered-users.xlsx');
   };
 
-  // Fetch the verified users from the backend
   useEffect(() => {
     const fetchVerifiedUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/gst/verified"
-        );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        const response = await axios.get("http://localhost/DocVerification/api/GST/GetAll");
+  
+        // Ensure 'data' is properly parsed
+        const parsedUsers = response.data.data.map(user => ({
+          ...user,
+          data: JSON.parse(user.data) // Convert string to JSON object
+        }));
+  
+        setVerifiedUsers(parsedUsers); // Store parsed data in state
+        // console.log(parsedUsers); // Debugging output
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
     };
+  
     fetchVerifiedUsers();
-  },[]);
+  }, []);
+  
 
 
   
@@ -264,67 +272,574 @@ const GSTTable = () => {
 //   // Save PDF
 //   doc.save('GST_Details.pdf');
 // };
+// const handleDownloadPdf = (user) => {
+//   const doc = new jsPDF();
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   const margin = 10;
+//   let yPosition = margin;
+//   const data = user.data;
+
+//   const addPageBorder = () => {
+//     doc.setDrawColor(0); // Black color
+//     doc.setLineWidth(0.7);
+//     doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+//   };
+
+//   const addFooterSignatures = () => {
+//     // Ensure footer always starts on a new page if needed
+//     doc.addPage();
+//     addPageBorder(); // Add border to the new page
+//     let footerStartY = margin + 20;
+
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Signature of the Authorised Signatory", 14, footerStartY);
+//     doc.text("Signature of the Branch Manager", 110, footerStartY);
+
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Name: __________________", 14, footerStartY + 10);
+//     doc.text("Name: __________________", 110, footerStartY + 10);
+//     doc.text("Designation: ____________", 14, footerStartY + 20);
+//     doc.text("Designation: ____________", 110, footerStartY + 20);
+//     doc.text("Phone no.: ______________", 14, footerStartY + 30);
+//     doc.text("Date: ___________________", 110, footerStartY + 30);
+//     doc.text("(Bank Seal)", 14, footerStartY + 51);
+//     doc.text("Verified By: User", 120, footerStartY + 51);
+//   };
+
+//   const addText = (text, x, y) => {
+//     const lineHeight = 10;
+//     const textLines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+//     textLines.forEach((line) => {
+//       if (yPosition + lineHeight > pageHeight - margin) {
+//         doc.addPage();
+//         addPageBorder();
+//         yPosition = margin + 20; // Reset yPosition for new page
+//       }
+//       doc.text(line, x, yPosition);
+//       yPosition += lineHeight;
+//     });
+//   };
+
+//   addPageBorder();
+
+//   // Add title and header
+//   yPosition += 15 // Adds 20 units of space from the current position
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(25);
+//   const title = "Shankar Nagari Sahakari Bank Ltd";
+//   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, yPosition);
+//   yPosition += 10;
+
+//   doc.setFontSize(14);
+//   const subtitle = "Voter ID Verification Certificate";
+//   doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, yPosition);
+//   yPosition += 10;
+
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(12);
+//   const header = "TO WHOMSOEVER IT MAY CONCERN";
+//   doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, yPosition);
+//   yPosition += 15;
+
+//   // Verification text
+//   // const verificationText = `This is to certify that ${
+//   //   user.verifiedData.data.business_name || "N/A"
+//   // }, Voter ID No. ${
+//   //   data.gstin
+//   // }, are verified.`;
+  
+//   // // Calculate the position to center the text
+//   // const textWidth = doc.getTextWidth(verificationText);
+//   // const xPosition = (pageWidth - textWidth) / 2; // Centers the text horizontally
+  
+//   // addText(verificationText, xPosition, yPosition);
+//   const verificationText =` This is to certify that ${
+//     user.data.business_name
+//   }, GST No. ${
+//     user.data.gstin
+//   }, are verified.`;
+//   addText(verificationText, margin +10,yPosition);
+//   yPosition += 10 // Adds 20 units of space from the current position
+
+//   // Define positions and dimensions for the outer border
+//   const outerX = 15;
+//   const outerY = 74;
+//   const outerWidth = 180;
+//   const outerHeight = 200;
+
+//   // Draw the outer border
+//   doc.setDrawColor(0);
+//   doc.setLineWidth(0.7);
+//   doc.rect(outerX, outerY, outerWidth, outerHeight);
+
+//   // Define positions and dimensions for content box
+//   const contentX = 14;
+//   const contentY = 70;
+//   const contentWidth = 120;
+//   const contentHeight = 90;
+
+//   // Define positions and dimensions for the profile image box
+//   const imageX = 150;
+//   const imageY = 70;
+//   const imageWidth = 40;
+//   const imageHeight = 40;
+
+  
+
+//   // User details
+//   const userDetails = [
+//     `GSTIN                            : ${data.gstin}`,
+//     `Pan Number                            : ${data.pan_number}`,
+//     `Business Name                   : ${data.business_name}`,
+//     `Legal Name                   : ${data.legal_name}`,
+//     `State Jurisdiction               : ${data.state_jurisdiction}`,
+//     `Taxpayer Type                    : ${data.taxpayer_type}`,
+//     `GST Status                        : ${data.gstin_status}`,
+//     // `Filing Status (Latest GSTR1)     : ${data.filing_status?.[0]?.[0]?.status || "N/A"}`,
+//     // `Last Filed GSTR3B                 : ${data.filing_status?.[0]?.[1]?.status || "N/A"}`,
+//     `Date of Registration              : ${data.date_of_registration}`,
+//     `Nature of Core Business           : ${data.nature_of_core_business_activity_description}`,
+//     `Constitution of Business           : ${data.constitution_of_business}`,
+//     `Center Jurisdiction                 : ${data.center_jurisdiction}`,
+//     `State Jurisdiction                 : ${data.state_jurisdiction}`,
+//     `Address                               : ${data.address}`,
+//     `Field Visit Conducted            : ${data.field_visit_conducted}`,
+//     `Nature of Business Activities: ${data.nature_bus_activities?.join(", ")}`,
+//     `Aadhaar Validation               : ${data.aadhaar_validation}`,
+//     `Aadhaar Validation Date       : ${data.aadhaar_validation_date}`,
+//     `Date of Cancellation     : ${data.date_of_cancellation}`,
+//     `Client ID     : ${data.client_id}`,
+//     `Constitution of Business     : ${data.constitution_of_business}`,
+//     `Nature Bus Activities     : ${data.nature_bus_activities}`,
+//     `Nature of Core Business Activity Code     : ${data.nature_of_core_business_activity_code}`,
+//     `Nature of Core Business Activity Description     : ${data.nature_of_core_business_activity_description}`,
+//     `Verification Date     : ${data.VerifiedDate}`,
+//   ];
+//   userDetails.forEach((detail) => addText(detail, margin +10,yPosition));
+
+//   // Add footer signatures on a new page
+//   addFooterSignatures();
+
+//   // Save PDF
+//   const fileName = user.data.file_number
+//     ? `${user.data.business_name}_verification_certificate.pdf`
+//     : "verification_certificate.pdf";
+//   doc.save(fileName);
+// };
+
+// const handleDownloadPdf = (user) => {
+//   if (!user || !user.data) {
+//     console.error("User data is missing.");
+//     return;
+//   }
+
+//   const doc = new jsPDF();
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   const margin = 10;
+//   let yPosition = margin + 10;
+//   const data = user.data;
+
+//   const addPageBorder = () => {
+//     doc.setDrawColor(0);
+//     doc.setLineWidth(0.7);
+//     doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+//   };
+
+//   // Function to add text dynamically with wrapping & spacing
+//   const addText = (label, value, x) => {
+//     const lineHeight = 8;
+//     const maxWidth = pageWidth - 60; // Limit width to prevent overflow
+//     const wrappedValue = doc.splitTextToSize(value || "N/A", maxWidth);
+
+//     // Ensure new page if content reaches bottom margin
+//     if (yPosition + wrappedValue.length * lineHeight > pageHeight - margin - 50) {
+//       doc.addPage();
+//       addPageBorder();
+//       yPosition = margin + 20;
+//     }
+
+//     doc.setFont("helvetica", "bold");
+//     doc.text(`${label}:`, x, yPosition);
+//     doc.setFont("helvetica", "normal");
+//     doc.text(wrappedValue, x + 60, yPosition); // Proper spacing
+//     yPosition += wrappedValue.length * lineHeight; // Adjust for multi-line text
+//   };
+
+//   addPageBorder();
+
+//   // Title
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(18);
+//   const title = "Shankar Nagari Sahakari Bank Ltd";
+//   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, yPosition);
+//   yPosition += 12;
+
+//   // Subtitle
+//   doc.setFontSize(14);
+//   const subtitle = "GST Verification Certificate";
+//   doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, yPosition);
+//   yPosition += 10;
+
+//   // Header
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(12);
+//   const header = "TO WHOMSOEVER IT MAY CONCERN";
+//   doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, yPosition);
+//   yPosition += 12;
+
+//   const businessName = data.business_name ? String(data.business_name) : "N/A";
+// const gstNumber = data.gstin ? String(data.gstin) : "N/A";
+
+//   // Verification text
+//   const certText = `This is to certify that ${businessName}, GST No. ${gstNumber}, are verified.`;
+//   const wrappedText = doc.splitTextToSize(certText, pageWidth - 20);
+//   doc.text(wrappedText, margin + 10, yPosition);
+  
+//   // Draw user details border
+//   doc.setDrawColor(0);
+//   doc.setLineWidth(0.7);
+//   doc.rect(15, yPosition, 180, 190);
+//   yPosition += 10;
+
+//   // User details
+//   const userDetails = [
+//     { label: "GSTIN", value: data.gstin },
+//     { label: "Pan Number", value: data.pan_number },
+//     { label: "Business Name", value: data.business_name },
+//     { label: "Legal Name", value: data.legal_name },
+//     { label: "State Jurisdiction", value: data.state_jurisdiction },
+//     { label: "Taxpayer Type", value: data.taxpayer_type },
+//     { label: "GST Status", value: data.gstin_status },
+//     { label: "Date of Registration", value: data.date_of_registration },
+//     { label: "Nature of Core Business", value: data.nature_of_core_business_activity_description },
+//     { label: "Constitution of Business", value: data.constitution_of_business },
+//     { label: "Center Jurisdiction", value: data.center_jurisdiction },
+//     { label: "State Jurisdiction", value: data.state_jurisdiction },
+//     { label: "Address", value: data.address },
+//     { label: "Field Visit Conducted", value: data.field_visit_conducted },
+//     { label: "Nature of Business Activities", value: data.nature_bus_activities?.join(", ") },
+//     { label: "Aadhaar Validation", value: data.aadhaar_validation },
+//     { label: "Aadhaar Validation Date", value: data.aadhaar_validation_date },
+//     { label: "Date of Cancellation", value: data.date_of_cancellation },
+//     { label: "Client ID", value: data.client_id },
+//     { label: "Nature of Core Business Activity Code", value: data.nature_of_core_business_activity_code },
+//     { label: "Nature of Core Business Activity Description", value: data.nature_of_core_business_activity_description },
+//     { label: "Verification Date", value: data.VerifiedDate },
+//   ];
+//   userDetails.forEach((detail) => addText(detail.label, detail.value, margin + 15));
+
+//   yPosition += 15; // Ensure spacing before the footer
+
+//   // **Footer Signatures Below Content**
+//   const addFooterSignatures = () => {
+//     if (yPosition + 40 > pageHeight - margin) {
+//       doc.addPage();
+//       addPageBorder();
+//       yPosition = margin + 20;
+//     }
+
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Signature of the Authorised Signatory", 14, yPosition);
+//     doc.text("Signature of the Branch Manager", 110, yPosition);
+
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Name: __________________", 14, yPosition + 10);
+//     doc.text("Name: __________________", 110, yPosition + 10);
+//     doc.text("Designation: ____________", 14, yPosition + 20);
+//     doc.text("Designation: ____________", 110, yPosition + 20);
+//     doc.text("Phone no.: ______________", 14, yPosition + 30);
+//     doc.text("Date: ___________________", 110, yPosition + 30);
+//     doc.text("(Bank Seal)", 14, yPosition + 51);
+//     doc.text("Verified By: User", 120, yPosition + 51);
+//   };
+
+//   // **Call Footer**
+//   addFooterSignatures();
+
+//   // Save PDF
+//   const fileName = data.file_number
+//     ? `${data.business_name}_verification_certificate.pdf`
+//     : "verification_certificate.pdf";
+//   doc.save(fileName);
+// };
+
+
+// const handleDownloadPdf = (user) => {
+//   if (!user || !user.data) {
+//     console.error("User data is missing.");
+//     return;
+//   }
+
+//   const doc = new jsPDF();
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   const margin = 10;
+//   let yPosition = margin + 10;
+//   const data = user.data;
+
+//   const addPageBorder = () => {
+//     doc.setDrawColor(0);
+//     doc.setLineWidth(0.7);
+//     doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+//   };
+
+//   // ✅ Updated Function to Handle Multi-Line Labels & Values
+//   const addAlignedText = (label, value, xLabel, xValue) => {
+//     const lineHeight = 8;
+//     const maxLabelWidth = xValue - xLabel - 5; // Limit label width
+//     const wrappedLabel = doc.splitTextToSize(label, maxLabelWidth);
+//     const wrappedValue = doc.splitTextToSize(value || "N/A", pageWidth - xValue - margin);
+  
+//     // Ensure new page if needed
+//     if (yPosition + lineHeight > pageHeight - margin - 50) {
+//       doc.addPage();
+//       addPageBorder();
+//       yPosition = margin + 20;
+//     }
+  
+//     // Get the highest line count between label and value
+//     const maxLines = Math.max(wrappedLabel.length, wrappedValue.length);
+  
+//     // Loop through maxLines to print label and value side by side
+//     for (let i = 0; i < maxLines; i++) {
+//       if (wrappedLabel[i]) {
+//         doc.setFont("helvetica", "bold");
+//         doc.text(wrappedLabel[i], xLabel, yPosition);
+//       }
+//       if (wrappedValue[i]) {
+//         doc.setFont("helvetica", "normal");
+//         doc.text(wrappedValue[i], xValue, yPosition);
+//       }
+//       yPosition += lineHeight;
+//     }
+  
+//     yPosition += 2; // Add extra space after each entry
+//   };
+  
+
+//   addPageBorder();
+
+//   // Title
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(18);
+//   const title = "Shankar Nagari Sahakari Bank Ltd";
+//   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, yPosition);
+//   yPosition += 12;
+
+//   // Subtitle
+//   doc.setFontSize(14);
+//   const subtitle = "GST Verification Certificate";
+//   doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, yPosition);
+//   yPosition += 10;
+
+//   // Header
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(12);
+//   const header = "TO WHOMSOEVER IT MAY CONCERN";
+//   doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, yPosition);
+//   yPosition += 12;
+
+//   // Verification text
+//  // Verification text
+// const businessName = data.business_name ? String(data.business_name) : "N/A";
+// const gstNumber = data.gstin ? String(data.gstin) : "N/A";
+
+// // ✅ Limit the length of business name to prevent long wrapping
+// const maxBusinessNameLength = 50; // Adjust as needed
+// const trimmedBusinessName =
+//   businessName.length > maxBusinessNameLength
+//     ? businessName.substring(0, maxBusinessNameLength) + "..."
+//     : businessName;
+
+// const certText = `This is to certify that ${trimmedBusinessName}, GST No. ${gstNumber}, are verified.`;
+
+// // ✅ Wrap text within allowed width
+// const wrappedText = doc.splitTextToSize(certText, pageWidth - 30); // Adjust width if needed
+// doc.text(wrappedText, margin + 10, yPosition);
+
+// // ✅ Adjust yPosition based on number of lines
+// yPosition += 10; // Extra spacing after text
+
+//   // Draw user details border
+//   doc.setDrawColor(0);
+//   doc.setLineWidth(0.7);
+//   doc.rect(15, (yPosition += 10), 180, 200);
+//   yPosition += 10;
+
+//   // ✅ User Details with Multi-Line Labels
+//   const userDetails = [
+//     { label: "GSTIN", value: data.gstin },
+//     { label: "Pan Number", value: data.pan_number },
+//     { label: "Business Name", value: data.business_name },
+//     { label: "Legal Name", value: data.legal_name },
+//     { label: "State Jurisdiction", value: data.state_jurisdiction },
+//     { label: "Taxpayer Type", value: data.taxpayer_type },
+//     { label: "GST Status", value: data.gstin_status },
+//     { label: "Date of Registration", value: data.date_of_registration },
+//     { label: "Nature of Core Business", value: data.nature_of_core_business_activity_description },
+//     { label: "Constitution of Business", value: data.constitution_of_business },
+//     { label: "Center Jurisdiction", value: data.center_jurisdiction },
+//     { label: "State Jurisdiction", value: data.state_jurisdiction },
+//     { label: "Address", value: data.address },
+//     { label: "Field Visit Conducted", value: data.field_visit_conducted },
+//     { label: "Aadhaar Validation", value: data.aadhaar_validation },
+//     { label: "Aadhaar Validation Date", value: data.aadhaar_validation_date },
+//     { label: "Date of Cancellation", value: data.date_of_cancellation },
+//     { label: "Client ID", value: data.client_id },
+//     { label: "Nature of Core Business\nActivity Code", value: data.nature_of_core_business_activity_code },
+//     { label: "Nature of Core Business\nActivity Description", value: data.nature_of_core_business_activity_description },
+//     { label: "Verification Date", value: data.VerifiedDate },
+//   ];
+
+//   // Add details with proper alignment
+//   userDetails.forEach((detail) => addAlignedText(detail.label, detail.value, margin + 15, margin + 80));
+
+
+//   // Add Filing Status (GSTR1 and GSTR3B)
+// //   yPosition += 10;
+// //   doc.setFont("helvetica", "bold");
+// //   doc.text("Filing Status:", margin + 15, yPosition);
+// //   yPosition += 10;
+
+// //  if (data.filing_status && data.filing_status.length > 0) {
+// //     data.filing_status.forEach((filing) => {
+// //       const filingText = `${filing.return_type} (${filing.tax_period} ${filing.financial_year}): ${filing.status}`;
+// //       addAlignedText(filingText, "", margin + 15, margin + 80);
+// //     });
+// //   } else {
+// //     addAlignedText("No Filing Status Available", "", margin + 15, margin + 80);
+// //   }
+
+//   // ✅ Ensure userData is an object
+//   let userData = user.data;
+
+//   if (typeof userData === "string") {
+//     try {
+//       userData = JSON.parse(userData);
+//     } catch (error) {
+//       console.error("Error parsing user data:", error);
+//       return;
+//     }
+//   }
+
+//   console.log("Final Parsed User Data:", userData);
+
+//   if (!userData.filing_status || !Array.isArray(userData.filing_status)) {
+//     console.error("Filing status data is missing or invalid.");
+//     return;
+//   }
+
+//   console.log("Final Filing Status Data:", userData.filing_status);
+
+
+//   doc.setFont("helvetica", "bold");
+//   doc.text("Filing Status:", margin + 15, yPosition);
+//   yPosition += 10;
+
+//   userData.filing_status.forEach((filing) => {
+//     const filingText = `${filing.return_type} (${filing.tax_period} ${filing.financial_year}): ${filing.status} \n Date of Filling - (${filing.date_of_filing})`;
+//     doc.text(filingText, margin + 15, yPosition);
+//     yPosition += 15;
+//   });
+
+
+//   yPosition += 15; // Ensure spacing before the footer
+
+//   // ✅ Footer Signatures with Proper Spacing
+//   const addFooterSignatures = () => {
+//     if (yPosition + 40 > pageHeight - margin) { // Increased buffer space
+//       doc.addPage();
+//       addPageBorder();
+//       yPosition = margin + 20;
+//     }
+
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Signature of the Authorised Signatory", 20, yPosition);
+//     doc.text("Signature of the Branch Manager", 114, yPosition);
+
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Name: __________________", 20, yPosition + 10);
+//     doc.text("Name: __________________", 114, yPosition + 10);
+//     doc.text("Designation: ____________", 20, yPosition + 20);
+//     doc.text("Designation: ____________", 114, yPosition + 20);
+//     doc.text("Phone no.: ______________", 20, yPosition + 30);
+//     doc.text("Date: ___________________", 114, yPosition + 30);
+//     doc.text("(Bank Seal)", 20, yPosition + 51);
+//     doc.text("Verified By: User", 124, yPosition + 51);
+//   };
+
+//   addFooterSignatures();
+
+//   // ✅ File Naming with Special Character Handling
+//   const sanitizedFileName = data.business_name
+//     ? data.business_name.replace(/[^a-zA-Z0-9-_]/g, "_") // Remove special chars
+//     : "verification_certificate";
+//   const fileName = `${sanitizedFileName}.pdf`;
+
+//   doc.save(fileName);
+// };
 const handleDownloadPdf = (user) => {
+  if (!user || !user.data) {
+    console.error("User data is missing.");
+    return;
+  }
+
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 10;
-  let yPosition = margin;
-  const data = user.verifiedData.data;
+  let yPosition = margin + 10;
+  const data = user.data;
 
   const addPageBorder = () => {
-    doc.setDrawColor(0); // Black color
+    doc.setDrawColor(0);
     doc.setLineWidth(0.7);
     doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
   };
 
-  const addFooterSignatures = () => {
-    // Ensure footer always starts on a new page if needed
-    doc.addPage();
-    addPageBorder(); // Add border to the new page
-    let footerStartY = margin + 20;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, footerStartY);
-    doc.text("Signature of the Branch Manager", 110, footerStartY);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, footerStartY + 10);
-    doc.text("Name: __________________", 110, footerStartY + 10);
-    doc.text("Designation: ____________", 14, footerStartY + 20);
-    doc.text("Designation: ____________", 110, footerStartY + 20);
-    doc.text("Phone no.: ______________", 14, footerStartY + 30);
-    doc.text("Date: ___________________", 110, footerStartY + 30);
-    doc.text("(Bank Seal)", 14, footerStartY + 51);
-    doc.text("Verified By: User", 120, footerStartY + 51);
+  const checkPageBreak = (additionalHeight = 10) => {
+    if (yPosition + additionalHeight > pageHeight - margin) {
+      doc.addPage();
+      addPageBorder();
+      yPosition = margin + 20;
+    }
   };
 
-  const addText = (text, x, y) => {
-    const lineHeight = 10;
-    const textLines = doc.splitTextToSize(text, pageWidth - 2 * margin);
-    textLines.forEach((line) => {
-      if (yPosition + lineHeight > pageHeight - margin) {
-        doc.addPage();
-        addPageBorder();
-        yPosition = margin + 20; // Reset yPosition for new page
+  const addAlignedText = (label, value, xLabel, xValue) => {
+    const lineHeight = 8;
+    const maxLabelWidth = xValue - xLabel - 5;
+    const wrappedLabel = doc.splitTextToSize(label, maxLabelWidth);
+    const wrappedValue = doc.splitTextToSize(value || "N/A", pageWidth - xValue - margin);
+
+    checkPageBreak(wrappedLabel.length * lineHeight + wrappedValue.length * lineHeight);
+
+    const maxLines = Math.max(wrappedLabel.length, wrappedValue.length);
+    for (let i = 0; i < maxLines; i++) {
+      if (wrappedLabel[i]) {
+        doc.setFont("helvetica", "bold");
+        doc.text(wrappedLabel[i], xLabel, yPosition);
       }
-      doc.text(line, x, yPosition);
+      if (wrappedValue[i]) {
+        doc.setFont("helvetica", "normal");
+        doc.text(wrappedValue[i], xValue, yPosition);
+      }
       yPosition += lineHeight;
-    });
+    }
+    yPosition += 2;
   };
 
   addPageBorder();
 
-  // Add title and header
-  yPosition += 15 // Adds 20 units of space from the current position
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(25);
+  doc.setFontSize(18);
   const title = "Shankar Nagari Sahakari Bank Ltd";
   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, yPosition);
-  yPosition += 10;
+  yPosition += 12;
 
   doc.setFontSize(14);
-  const subtitle = "Voter ID Verification Certificate";
+  const subtitle = "GST Verification Certificate";
   doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, yPosition);
   yPosition += 10;
 
@@ -332,81 +847,85 @@ const handleDownloadPdf = (user) => {
   doc.setFontSize(12);
   const header = "TO WHOMSOEVER IT MAY CONCERN";
   doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, yPosition);
-  yPosition += 15;
+  yPosition += 12;
 
-  // Verification text
-  // const verificationText = `This is to certify that ${
-  //   user.verifiedData.data.business_name || "N/A"
-  // }, Voter ID No. ${
-  //   data.gstin
-  // }, are verified.`;
-  
-  // // Calculate the position to center the text
-  // const textWidth = doc.getTextWidth(verificationText);
-  // const xPosition = (pageWidth - textWidth) / 2; // Centers the text horizontally
-  
-  // addText(verificationText, xPosition, yPosition);
-  const verificationText =` This is to certify that ${
-    user.verifiedData.data.business_name
-  }, GST No. ${
-    user.verifiedData.data.gstin
-  }, are verified.`;
-  addText(verificationText, margin +10,yPosition);
-  yPosition += 10 // Adds 20 units of space from the current position
+  const certText = `This is to certify that ${data.business_name || "N/A"}, GST No. ${data.gstin || "N/A"}, are verified.`;
+  const wrappedText = doc.splitTextToSize(certText, pageWidth - 30);
+  checkPageBreak(wrappedText.length * 8);
+  doc.text(wrappedText, margin + 10, yPosition);
+  yPosition += wrappedText.length * 8 + 10;
 
-  // Define positions and dimensions for the outer border
-  const outerX = 15;
-  const outerY = 78;
-  const outerWidth = 180;
-  const outerHeight = 200;
-
-  // Draw the outer border
+  checkPageBreak(200);
   doc.setDrawColor(0);
   doc.setLineWidth(0.7);
-  doc.rect(outerX, outerY, outerWidth, outerHeight);
+  doc.rect(15, yPosition, 180, 200);
+  yPosition += 10;
 
-  // Define positions and dimensions for content box
-  const contentX = 14;
-  const contentY = 70;
-  const contentWidth = 120;
-  const contentHeight = 90;
-
-  // Define positions and dimensions for the profile image box
-  const imageX = 150;
-  const imageY = 70;
-  const imageWidth = 40;
-  const imageHeight = 40;
-
-  
-
-  // User details
   const userDetails = [
-    `GSTIN                            : ${data.gstin}`,
-    `Business Name                   : ${data.business_name}`,
-    `State Jurisdiction               : ${data.state_jurisdiction}`,
-    `Taxpayer Type                    : ${data.taxpayer_type}`,
-    `GST Status                        : ${data.gstin_status}`,
-    `Filing Status (Latest GSTR1)     : ${data.filing_status?.[0]?.[0]?.status || "N/A"}`,
-    `Last Filed GSTR3B                 : ${data.filing_status?.[0]?.[1]?.status || "N/A"}`,
-    `Date of Registration              : ${data.date_of_registration}`,
-    `Nature of Core Business           : ${data.nature_of_core_business_activity_description}`,
-    `Constitution of Business           : ${data.constitution_of_business}`,
-    `Center Jurisdiction                 : ${data.center_jurisdiction}`,
-    `Address                               : ${data.address}`,
-    `Field Visit Conducted            : ${data.field_visit_conducted}`,
-    `Nature of Business Activities: ${data.nature_bus_activities?.join(", ")}`,
-    `Aadhaar Validation               : ${data.aadhaar_validation}`,
-    `Aadhaar Validation Date       : ${data.aadhaar_validation_date}`,
+    { label: "GSTIN", value: data.gstin },
+    { label: "Pan Number", value: data.pan_number },
+    { label: "Business Name", value: data.business_name },
+    { label: "Legal Name", value: data.legal_name },
+    { label: "State Jurisdiction", value: data.state_jurisdiction },
+    { label: "Taxpayer Type", value: data.taxpayer_type },
+    { label: "GST Status", value: data.gstin_status },
+    { label: "Date of Registration", value: data.date_of_registration },
+    { label: "Nature of Core Business", value: data.nature_of_core_business_activity_description },
+    { label: "Constitution of Business", value: data.constitution_of_business },
+    { label: "Center Jurisdiction", value: data.center_jurisdiction },
+    { label: "State Jurisdiction", value: data.state_jurisdiction },
+    { label: "Address", value: data.address },
+    { label: "Field Visit Conducted", value: data.field_visit_conducted },
+    { label: "Aadhaar Validation", value: data.aadhaar_validation },
+    { label: "Aadhaar Validation Date", value: data.aadhaar_validation_date },
+    { label: "Date of Cancellation", value: data.date_of_cancellation },
+    { label: "Client ID", value: data.client_id },
+    { label: "Nature of Core Business\nActivity Code", value: data.nature_of_core_business_activity_code },
+    { label: "Nature of Core Business\nActivity Description", value: data.nature_of_core_business_activity_description },
+    { label: "Verification Date", value: data.VerifiedDate },
   ];
-  userDetails.forEach((detail) => addText(detail, margin +10,yPosition));
 
-  // Add footer signatures on a new page
+  userDetails.forEach((detail) => addAlignedText(detail.label, detail.value, margin + 15, margin + 80));
+
+  checkPageBreak(20);
+  yPosition += 10;
+  doc.setFont("helvetica", "bold");
+  doc.text("Filing Status:", margin + 15, yPosition);
+  yPosition += 10;
+
+  data.filing_status.forEach((filing) => {
+    const filingText = `${filing.return_type} (${filing.tax_period} ${filing.financial_year}): ${filing.status} \n Date of Filing - (${filing.date_of_filing})`;
+    checkPageBreak(15);
+    doc.text(filingText, margin + 15, yPosition);
+    yPosition += 15;
+  });
+
+  yPosition += 15;
+
+  const addFooterSignatures = () => {
+    checkPageBreak(40);
+    doc.setFont("helvetica", "bold");
+    doc.text("Signature of the Authorised Signatory", 20, yPosition);
+    doc.text("Signature of the Branch Manager", 114, yPosition);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Name: __________________", 20, yPosition + 10);
+    doc.text("Name: __________________", 114, yPosition + 10);
+    doc.text("Designation: ____________", 20, yPosition + 20);
+    doc.text("Designation: ____________", 114, yPosition + 20);
+    doc.text("Phone no.: ______________", 20, yPosition + 30);
+    doc.text("Date: ___________________", 114, yPosition + 30);
+    doc.text("(Bank Seal)", 20, yPosition + 51);
+    doc.text("Verified By: User", 124, yPosition + 51);
+  };
+
   addFooterSignatures();
 
-  // Save PDF
-  const fileName = user.verifiedData.data.file_number
-    ? `${user.verifiedData.data.business_name}_verification_certificate.pdf`
-    : "verification_certificate.pdf";
+  const sanitizedFileName = data.business_name
+    ? data.business_name.replace(/[^a-zA-Z0-9-_]/g, "_")
+    : "verification_certificate";
+  const fileName = `${sanitizedFileName}.pdf`;
+
   doc.save(fileName);
 };
 
@@ -443,7 +962,7 @@ const handleDownloadPdf = (user) => {
   </div>
 
   <div className="col-12 col-md-2 mt-1 mt-md-0">
-  <button onClick={handleDownload}>Excel Download</button>
+  <button onClick={handleDownloadExcel}>Excel Download</button>
   </div>
 </div>
 
@@ -541,53 +1060,54 @@ const handleDownloadPdf = (user) => {
           </thead>
           <tbody>
           {verifiedUsers
-  .filter((user) => {
-    // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
-    const userVerificationDate = new Date(year, month - 1, day); // Create Date object
+  // .filter((user) => {
+  //   // Parse `formattedDate` into a JavaScript Date object
+  //   const [day, month, year] = user.formattedDate.split("/").map(Number);
+  //   const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
-    let isInDateRange = true;
+  //   let isInDateRange = true;
 
-    // Parse startDate and endDate from the input fields
-    const startDateObj = startDate ? new Date(startDate) : null;
-    let endDateObj = endDate ? new Date(endDate) : null;
+  //   // Parse startDate and endDate from the input fields
+  //   const startDateObj = startDate ? new Date(startDate) : null;
+  //   let endDateObj = endDate ? new Date(endDate) : null;
 
-    // Adjust endDate to include the full day
-    if (endDateObj) {
-      endDateObj.setHours(23, 59, 59, 999);
-    }
+  //   // Adjust endDate to include the full day
+  //   if (endDateObj) {
+  //     endDateObj.setHours(23, 59, 59, 999);
+  //   }
 
-     // Include users with a `formattedDate` equal to `startDate`
-     if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
-      return true;
-    }
+  //    // Include users with a `formattedDate` equal to `startDate`
+  //    if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+  //     return true;
+  //   }
 
-    // Handle case where startDate equals endDate (specific day filtering)
-    if (startDate && endDate && startDate === endDate) {
-      isInDateRange =
-        userVerificationDate.toDateString() === startDateObj.toDateString();
-    } else {
-      // General range filtering
-      isInDateRange =
-        (!startDateObj || userVerificationDate >= startDateObj) &&
-        (!endDateObj || userVerificationDate <= endDateObj);
-    }
+  //   // Handle case where startDate equals endDate (specific day filtering)
+  //   if (startDate && endDate && startDate === endDate) {
+  //     isInDateRange =
+  //       userVerificationDate.toDateString() === startDateObj.toDateString();
+  //   } else {
+  //     // General range filtering
+  //     isInDateRange =
+  //       (!startDateObj || userVerificationDate >= startDateObj) &&
+  //       (!endDateObj || userVerificationDate <= endDateObj);
+  //   }
 
-    return isInDateRange;
-  })
+  //   return isInDateRange;
+  // })
 
               .map((user, index) => (
+                
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
                                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.gstin}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.pan_number || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.business_name || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.date_of_registration || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.gstin_status || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.gstin}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.pan_number || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.business_name || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.date_of_registration || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.gstin_status || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.VerifiedDate || "not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

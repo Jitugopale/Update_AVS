@@ -17,7 +17,7 @@ const VoterTable = () => {
     // Filter the users based on the date range
     const filteredUsers = verifiedUsers.filter((user) => {
       // Parse `formattedDate` into a JavaScript Date object
-      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
       const userVerificationDate = new Date(year, month - 1, day); // Create Date object
   
       let isInDateRange = true;
@@ -57,23 +57,29 @@ const VoterTable = () => {
   
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user, index) => ({
-      'SrNo': index + 1,  // Serial number
-        'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A",
-        'Name': user?.verifiedData?.data?.name || "N/A",
-        'Age': user?.verifiedData?.data?.age || "N/A",
-        'Gender': user?.verifiedData?.data?.gender || "N/A",
-        'District': user?.verifiedData?.data?.district || "N/A",
-        'State': user?.verifiedData?.data?.state || "N/A",
-        'Polling Station': user?.verifiedData?.data?.polling_station || "N/A",
-        'Relation Name': user?.verifiedData?.data?.relation_name || "N/A",
-        'Relation Type': user?.verifiedData?.data?.relation_type || "N/A",
-        'Assembly Constituency': user?.verifiedData?.data?.assembly_constituency || "N/A",
-        'Constituency Number': user?.verifiedData?.data?.assembly_constituency_number || "N/A",
-        'Part Number': user?.verifiedData?.data?.part_number || "N/A",
-        'Part Name': user?.verifiedData?.data?.part_name || "N/A",
-        'Parliamentary Name': user?.verifiedData?.data?.parliamentary_name || "N/A",
-        'Parliamentary Number': user?.verifiedData?.data?.parliamentary_number || "N/A",
-        'Verification Date': user?.formattedDate || "N/A",
+      'SrNo': index + 1,  // Serial numberverifiedData?.data?.
+        'Voter ID': user?.input_voter_id || "N/A",
+        'Name': user?.name || "N/A",
+        'Age': user?.age || "N/A",
+        'Gender': user?.gender || "N/A",
+        'Area': user?.area || "N/A",
+        'District': user?.district || "N/A",
+        'State': user?.state || "N/A",
+        'Polling Station': user?.polling_station || "N/A",
+        'Relation Name': user?.relation_name || "N/A",
+        'Relation Type': user?.relation_type || "N/A",
+        'Assembly Constituency': user?.assembly_constituency || "N/A",
+        'Constituency Number': user?.assembly_constituency_number || "N/A",
+        'Part Number': user?.part_number || "N/A",
+        'Part Name': user?.part_name || "N/A",
+        'Parliamentary Name': user?.parliamentary_name || "N/A",
+        'Parliamentary Number': user?.parliamentary_number || "N/A",
+        'SlNo Inpart': user?.slno_inpart || "N/A",
+        'Section Number': user?.section_no || "N/A",
+        'State Code': user?.st_code || "N/A",
+        'Parliamentary Constituency': user?.parliamentary_constituency || "N/A",
+        'Id': user?.id || "N/A",
+        'Verification Date': user?.VerifiedDate || "N/A",
     }));
     
     // Prepare data for Excel
@@ -90,9 +96,9 @@ const VoterTable = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/voter/verified"
+          "http://localhost/DocVerification/api/Voter/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -183,117 +189,226 @@ const VoterTable = () => {
 //     doc.save(`${user.verifiedData?.data?.full_name}_aadhaar_verification.pdf`);
 //   };
 
-const handleDownloadPdf = (user) => {
-    try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth(); // Page width
-      const pageHeight = doc.internal.pageSize.getHeight(); // Page height
+  const handleDownloadPdf = (user) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
   
-      // Add a full-page border
-      doc.setDrawColor(0); // Black color
-      doc.setLineWidth(0.7); // Border thickness
-      doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+    // Add a full-page border
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.7);
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
   
-      // Center-aligned title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(25);
-      const title = "Shankar Nagari Sahakari Bank Ltd";
-      doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(25);
+    const title = "Shankar Nagari Sahakari Bank Ltd";
+    doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
   
-      // Center-aligned subtitle
+    // Center-aligned subtitle
       doc.setFontSize(14);
-      const subtitle = "Voter Id Verification Certificate";
+      const subtitle = "Voter Verification Certificate";
       doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
   
-      // Center-aligned section header
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      const header = "TO WHOMSOEVER IT MAY CONCERN";
-      doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+    // Section Header
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const header = "TO WHOMSOEVER IT MAY CONCERN";
+    doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
   
-      // Verification Statement
-      const name = user?.verifiedData?.data?.name || "N/A";
-      const idNumber = user?.id_number || "N/A";
-      const verificationText = `This is to Certify that ${name}, Voter Id No. ${idNumber} are verified from link.`;
-      const verificationSplit = doc.splitTextToSize(verificationText, 180);
-      doc.text(verificationSplit, 14, 50);
-
-       // Define positions and dimensions for the outer border
+    // Verification Statement
+    const verificationText = `This is to Certify that ${
+        user.name || "N/A"
+    }, Voter Id No. ${user.input_voter_id} are verified.`;
+    const verificationSplit = doc.splitTextToSize(verificationText, 180);
+    doc.text(verificationSplit, 14, 50);
+  
+    // Outer Border
     const outerX = 10;
     const outerY = 55;
     const outerWidth = 190;
-    const outerHeight = 165;
+    const outerHeight = 180; // Increased height for better spacing
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.7);
+    doc.rect(outerX, outerY, outerWidth, outerHeight);
+  
+    // User Details
+    const contentX = 14;
+    let yOffset = 62;
+  
+    const nicData = user || {};
+    const processNicData = (label, value) => {
+        if (!value) return `${label}: N/A`;
+        return value.length > 5 ? `${label}: ${value.slice(0, 5)}\n${value.slice(5)}` : `${label}: ${value}`;
+    };
+  
+    const userDetails = [
+         { label: "Status", value: "success" || "N/A" },
+        { label: "Id Number", value: user.input_voter_id ? user.input_voter_id.toString() : "N/A" },
+        { label: "Name", value: user.name ? user.name.toString() : "N/A" },
+        { label: "Age", value: user.age ? user.age.toString() : "N/A" },
+        { label: "Gender", value: user.gender ? user.gender.toString() : "N/A" },
+        { label: "Relation Name", value: user.relation_name ? user.relation_name.toString() : "N/A" },
+        { label: "Relation Type", value: user.relation_type ? user.relation_type.toString() : "N/A" },
+        { label: "Area", value: user.area ? user.area.toString() : "N/A" },
 
-     // Draw the outer border
-     doc.setDrawColor(0);
-     doc.setLineWidth(0.7);
-     doc.rect(outerX, outerY, outerWidth, outerHeight);
-   
-     // Define positions and dimensions for content box
-     const contentX = 14;
-     const contentY = 70;
-     const contentWidth = 120;
-     const contentHeight = 90;
-   
+        { label: "State", value: user.state ? user.state.toString() : "N/A" },
+        { label: "District", value: user.district ? user.district.toString() : "N/A" },
+        { label: "Polling Station", value: user.polling_station ? user.polling_station.toString() : "N/A" },
+        { label: "Assembly Constituency", value: user.assembly_constituency ? user.assembly_constituency.toString() : "N/A" },
+        { label: "Constituency Number", value: user.assembly_constituency_number ? user.assembly_constituency_number.toString() : "N/A" },
+        { label: "Part Number", value: user.part_number ? user.part_number.toString() : "N/A" },
+        { label: "Part Name", value: user.part_name ? user.part_name.toString() : "N/A" },
+        { label: "Parliamentary Name", value: user.parliamentary_name ? user.parliamentary_name.toString() : "N/A" },
+        { label: "Parliamentary Number", value: user.parliamentary_number ? user.parliamentary_number.toString() : "N/A" },
+        { label: "SlNo Inpart", value: user.slno_inpart ? user.slno_inpart.toString() : "N/A" },
+        { label: "Section Number", value: user.section_no ? user.section_no.toString() : "N/A" },
+        { label: "State Code", value: user.st_code ? user.st_code.toString() : "N/A" },
+        { label: "Parliamentary Constituency", value: user.parliamentary_constituency ? user.parliamentary_constituency.toString() : "N/A" },
+        { label: "Id", value: user.id ? user.id.toString() : "N/A" }
+    ];
   
-      // User Details Content
-      const userDetails = [
-        { label: "Status", value: "success" },
-        { label: "Id Number", value: idNumber },
-        { label: "Name", value: name },
-        { label: "Age", value: user?.verifiedData?.data?.age?.toString() || "N/A" },
-        { label: "Gender", value: user?.verifiedData?.data?.gender || "N/A" },
-        { label: "Relation Name", value: user?.verifiedData?.data?.relation_name || "N/A" },
-        { label: "Relation Type", value: user?.verifiedData?.data?.relation_type || "N/A" },
-        { label: "State", value: user?.verifiedData?.data?.state || "N/A" },
-        { label: "District", value: user?.verifiedData?.data?.district || "N/A" },
-        { label: "Polling Station", value: user?.verifiedData?.data?.polling_station || "N/A" },
-        { label: "Assembly Constituency", value: user?.verifiedData?.data?.assembly_constituency || "N/A" },
-        { label: "Constituency Number", value: user?.verifiedData?.data?.assembly_constituency_number || "N/A" },
-        { label: "Part Number", value: user?.verifiedData?.data?.part_number || "N/A" },
-        { label: "Part Name", value: user?.verifiedData?.data?.part_name || "N/A" },
-        { label: "Parliamentary Name", value: user?.verifiedData?.data?.parliamentary_name || "N/A" },
-        { label: "Parliamentary Number", value: user?.verifiedData?.data?.parliamentary_number || "N/A" },
-      ];
-  
-      doc.setFont("helvetica", "bold");
-      let yOffset = 70;
-  
-      userDetails.forEach((item) => {
-        doc.text(`${item.label} :`, 14, yOffset -6);
-        doc.setFont("helvetica", "normal");
-        doc.text(item.value, 62, yOffset -6);
-        yOffset += 10;
-      });
-
-      // Footer with signatures
     doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 238);
-    doc.text("Signature of the Branch Manager", 110, 238);
+    userDetails.forEach(item => {
+        doc.text(`${item.label} :`, contentX + 2, yOffset);
+        doc.setFont("helvetica", "normal");
   
+        // Handle line breaking for NIC Data
+        const splitText = doc.splitTextToSize(item.value, 120);
+        doc.text(splitText, contentX + 60, yOffset);
+  
+        yOffset += splitText.length * 7; // Increased line height spacing
+    });
+  
+    // Footer with Signatures
+    doc.setFont("helvetica", "bold");
+    doc.text("Signature of the Authorised Signatory", 14, 246);
+    doc.text("Signature of the Branch Manager", 110, 246);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 248);
-    doc.text("Name: __________________", 110, 248);
+    doc.text("Name: __________________", 14, 255);
+    doc.text("Name: __________________", 110, 255);
+    doc.text("Designation: ____________", 14, 265);
+    doc.text("Designation: ____________", 110, 265);
+    doc.text("Phone no.: ______________", 14, 275);
+    doc.text("Date: ___________________", 110, 275);
+    doc.text("(Bank Seal)", 14, 288);
+    doc.text("Verified By : User", 120, 288);
   
-    doc.text("Designation: ____________", 14, 258);
-    doc.text("Designation: ____________", 110, 258);
-  
-    doc.text("Phone no.: ______________", 14, 268);
-    doc.text("Date: ___________________", 110, 268);
-  
-    // Bank Seal
-    doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 280);
-    doc.text("Verified By : User", 120, 280);
-  
-  
-      // Save PDF
-      const fileName = `${name}_verification_certificate.pdf`;
-      doc.save(fileName);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
+    // Save PDF
+    const fileName = `${nicData.name || "User"}_verification_certificate.pdf`;
+    doc.save(fileName);
   };
+// const handleDownloadPdf = (user) => {
+//     try {
+//       const doc = new jsPDF();
+//       const pageWidth = doc.internal.pageSize.getWidth(); // Page width
+//       const pageHeight = doc.internal.pageSize.getHeight(); // Page height
+  
+//       // Add a full-page border
+//       doc.setDrawColor(0); // Black color
+//       doc.setLineWidth(0.7); // Border thickness
+//       doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+  
+//       // Center-aligned title
+//       doc.setFont("helvetica", "bold");
+//       doc.setFontSize(25);
+//       const title = "Shankar Nagari Sahakari Bank Ltd";
+//       doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+  
+//       // Center-aligned subtitle
+//       doc.setFontSize(14);
+//       const subtitle = "Voter Id Verification Certificate";
+//       doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+  
+//       // Center-aligned section header
+//       doc.setFontSize(12);
+//       doc.setFont("helvetica", "normal");
+//       const header = "TO WHOMSOEVER IT MAY CONCERN";
+//       doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+  
+//       // Verification Statement
+//       const name = user.name || "N/A";
+//       const idNumber = user?.id_number || "N/A";
+//       const verificationText = `This is to Certify that ${name}, Voter Id No. ${idNumber} are verified from link.`;
+//       const verificationSplit = doc.splitTextToSize(verificationText, 180);
+//       doc.text(verificationSplit, 14, 50);
+
+//        // Define positions and dimensions for the outer border
+//     const outerX = 10;
+//     const outerY = 55;
+//     const outerWidth = 190;
+//     const outerHeight = 165;
+
+//      // Draw the outer border
+//      doc.setDrawColor(0);
+//      doc.setLineWidth(0.7);
+//      doc.rect(outerX, outerY, outerWidth, outerHeight);
+   
+//      // Define positions and dimensions for content box
+//      const contentX = 14;
+//      const contentY = 70;
+//      const contentWidth = 120;
+//      const contentHeight = 90;
+   
+  
+//       // User Details Content
+//       const userDetails = [
+//         { label: "Status", value: "success" },
+//         { label: "Id Number", value: idNumber },
+//         { label: "Name", value: name },
+//         { label: "Age", value: user.age?.toString() || "N/A" },
+//         { label: "Gender", value: user.gender || "N/A" },
+//         { label: "Relation Name", value: user.relation_name || "N/A" },
+//         { label: "Relation Type", value: user.relation_type || "N/A" },
+//         { label: "State", value: user.state || "N/A" },
+//         { label: "District", value: user.district || "N/A" },
+//         { label: "Polling Station", value: user.polling_station || "N/A" },
+//         { label: "Assembly Constituency", value: user.assembly_constituency || "N/A" },
+//         { label: "Constituency Number", value: user.assembly_constituency_number || "N/A" },
+//         { label: "Part Number", value: user.part_number || "N/A" },
+//         { label: "Part Name", value: user.part_name || "N/A" },
+//         { label: "Parliamentary Name", value: user.parliamentary_name || "N/A" },
+//         { label: "Parliamentary Number", value: user.parliamentary_number || "N/A" },
+//       ];
+  
+//       doc.setFont("helvetica", "bold");
+//       let yOffset = 70;
+  
+//       userDetails.forEach((item) => {
+//         doc.text(`${item.label} :`, 14, yOffset -6);
+//         doc.setFont("helvetica", "normal");
+//         doc.text(item.value, 62, yOffset -6);
+//         yOffset += 10;
+//       });
+
+//       // Footer with signatures
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Signature of the Authorised Signatory", 14, 238);
+//     doc.text("Signature of the Branch Manager", 110, 238);
+  
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Name: __________________", 14, 248);
+//     doc.text("Name: __________________", 110, 248);
+  
+//     doc.text("Designation: ____________", 14, 258);
+//     doc.text("Designation: ____________", 110, 258);
+  
+//     doc.text("Phone no.: ______________", 14, 268);
+//     doc.text("Date: ___________________", 110, 268);
+  
+//     // Bank Seal
+//     doc.setFont("helvetica", "normal");
+//     doc.text("(Bank Seal)", 14, 280);
+//     doc.text("Verified By : User", 120, 280);
+  
+  
+//       // Save PDF
+//       const fileName = `${name}_verification_certificate.pdf`;
+//       doc.save(fileName);
+//     } catch (error) {
+//       console.error("Error generating PDF:", error);
+//     }
+//   };
   
   
   
@@ -449,7 +564,7 @@ const handleDownloadPdf = (user) => {
           {verifiedUsers
   .filter((user) => {
     // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
     let isInDateRange = true;
@@ -487,16 +602,16 @@ const handleDownloadPdf = (user) => {
                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>
           {index + 1}
         </td>
-                                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.id_number}</td>
+                                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.input_voter_id}</td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.name}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.age || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.gender || "Gender not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.district || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.state || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.polling_station || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.name}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user?.age || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user?.gender || "Gender not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.district || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.state || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.polling_station || "DOB not available"}</td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

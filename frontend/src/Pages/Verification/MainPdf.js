@@ -37,7 +37,7 @@ const MainPdf = ({ data, enquiryId }) => {
                   <th>Consumer Name</th>
                   <td style={{paddingLeft:'4px'}}>
                     {
-                      data?.verifiedData?.data?.cCRResponse
+                      data?.responseData.data?.[0]?.cCRResponse
                         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
                         ?.personalInfo?.name?.firstName
                     }

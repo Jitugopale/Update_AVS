@@ -365,12 +365,11 @@ const handleAdharPdf = (aadhaarDetails) => {
   const handleSendOtp = async () => {
     try {
       // Make a POST request to your backend to send OTP
-      const response = await axios.post("http://localhost:5000/api/adhar/adhar", {
-        aadharNumber: aadhaarNumber,
-      });
+      const response = await axios.post(`https://localhost:44334/api/Aadhar/VerifyAadhar?aadharNumber=${aadhaarNumber}`);
   
-      // Check if OTP was sent successfully and handle the response
-      if (response.data.message === "OTP sent successfully.") {
+      // Check if OTP was sent successfully and handle the 
+      console.log(response)
+      if (response.data.message === "OTP send to Aadhar register mobile number successfully") {
         // Store the client_id in sessionStorage
         sessionStorage.setItem("clientId", response.data.client_id);
         
@@ -407,13 +406,7 @@ const handleAdharPdf = (aadhaarDetails) => {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/adhar/verifyAadhaarOtp",
-        {
-          clientId: clientId,
-          OTP: otp,
-          aadharNumber: aadhaarNumber,
-
-        }
+        `https://localhost:44334/api/Aadhar/VerifyOTP?clientId=${clientId}&OTP=${otp}&aadharNumber=${aadhaarNumber}`
       );
 
       if (response.data.message === "Aadhaar verification successful.") {

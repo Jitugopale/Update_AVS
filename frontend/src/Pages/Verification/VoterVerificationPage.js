@@ -31,9 +31,9 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:5000/api/voter/verified"
+            "http://localhost/DocVerification/api/Voter/GetAll"
           );
-          setVerifiedUsers(response.data); // Set the fetched data into the state
+          setVerifiedUsers(response.data.data); // Set the fetched data into the state
         } catch (error) {
           console.error("Error fetching verified users:", error);
         }
@@ -44,23 +44,29 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
     const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
       const excelData = verifiedUsers.map((user, index) => ({
-        'SrNo': index + 1,  // Serial number
-        'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A",
-        'Name': user?.verifiedData?.data?.name || "N/A",
-        'Age': user?.verifiedData?.data?.age || "N/A",
-        'Gender': user?.verifiedData?.data?.gender || "N/A",
-        'District': user?.verifiedData?.data?.district || "N/A",
-        'State': user?.verifiedData?.data?.state || "N/A",
-        'Polling Station': user?.verifiedData?.data?.polling_station || "N/A",
-        'Relation Name': user?.verifiedData?.data?.relation_name || "N/A",
-        'Relation Type': user?.verifiedData?.data?.relation_type || "N/A",
-        'Assembly Constituency': user?.verifiedData?.data?.assembly_constituency || "N/A",
-        'Constituency Number': user?.verifiedData?.data?.assembly_constituency_number || "N/A",
-        'Part Number': user?.verifiedData?.data?.part_number || "N/A",
-        'Part Name': user?.verifiedData?.data?.part_name || "N/A",
-        'Parliamentary Name': user?.verifiedData?.data?.parliamentary_name || "N/A",
-        'Parliamentary Number': user?.verifiedData?.data?.parliamentary_number || "N/A",
-        'Verification Date': user?.formattedDate || "N/A",
+        'SrNo': index + 1,  // Serial numberverifiedData?.data?.
+        'Voter ID': user?.input_voter_id || "N/A",
+        'Name': user?.name || "N/A",
+        'Age': user?.age || "N/A",
+        'Gender': user?.gender || "N/A",
+        'Area': user?.area || "N/A",
+        'District': user?.district || "N/A",
+        'State': user?.state || "N/A",
+        'Polling Station': user?.polling_station || "N/A",
+        'Relation Name': user?.relation_name || "N/A",
+        'Relation Type': user?.relation_type || "N/A",
+        'Assembly Constituency': user?.assembly_constituency || "N/A",
+        'Constituency Number': user?.assembly_constituency_number || "N/A",
+        'Part Number': user?.part_number || "N/A",
+        'Part Name': user?.part_name || "N/A",
+        'Parliamentary Name': user?.parliamentary_name || "N/A",
+        'Parliamentary Number': user?.parliamentary_number || "N/A",
+        'SlNo Inpart': user?.slno_inpart || "N/A",
+        'Section Number': user?.section_no || "N/A",
+        'State Code': user?.st_code || "N/A",
+        'Parliamentary Constituency': user?.parliamentary_constituency || "N/A",
+        'Id': user?.id || "N/A",
+        'Verification Date': user?.VerifiedDate || "N/A",
     }));
     
       // Create a new workbook
@@ -112,11 +118,12 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/voter/voter_verify",
+        `http://localhost/DocVerification/api/Voter/VerifyVoterId?id_number=${idNumber}`,
         { id_number: idNumber }
       );
       if (res.data.status === "success") {
-        setResponseData(res.data.verifiedData);
+        setResponseData(res.data);
+        console.log(res.data)
       } else {
         setError(res.data.message || "Verification failed. Please try again.");
       }
@@ -213,26 +220,26 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth(); // Page width
-    const pageHeight = doc.internal.pageSize.getHeight(); // Page height
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
   
     // Add a full-page border
-    doc.setDrawColor(0); // Black color
-    doc.setLineWidth(0.7); // Border thickness
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.7);
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
   
-    // Center-aligned title
+    // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(25);
     const title = "Shankar Nagari Sahakari Bank Ltd";
     doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
   
     // Center-aligned subtitle
-    doc.setFontSize(14);
-    const subtitle = "Pan Detail Verification Certificate";
-    doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+      doc.setFontSize(14);
+      const subtitle = "Voter Verification Certificate";
+      doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
   
-    // Center-aligned section header
+    // Section Header
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     const header = "TO WHOMSOEVER IT MAY CONCERN";
@@ -240,82 +247,87 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
   
     // Verification Statement
     const verificationText = `This is to Certify that ${
-      responseData.data.name || "N/A"
+        responseData?.data?.[0]?.name || "N/A"
     }, Voter Id No. ${idNumber} are verified.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
   
-    // Define positions and dimensions for the outer border
+    // Outer Border
     const outerX = 10;
     const outerY = 55;
     const outerWidth = 190;
-    const outerHeight = 165;
-  
-    // Draw the outer border
+    const outerHeight = 180; // Increased height for better spacing
     doc.setDrawColor(0);
     doc.setLineWidth(0.7);
     doc.rect(outerX, outerY, outerWidth, outerHeight);
   
-    // Define positions and dimensions for content box
+    // User Details
     const contentX = 14;
-    const contentY = 70;
-    const contentWidth = 120;
-    const contentHeight = 90;
+    let yOffset = 62;
   
-    // User Details Content inside the rectangle
+    const nicData = responseData?.data?.[0] || {};
+    const processNicData = (label, value) => {
+        if (!value) return `${label}: N/A`;
+        return value.length > 5 ? `${label}: ${value.slice(0, 5)}\n${value.slice(5)}` : `${label}: ${value}`;
+    };
+  
     const userDetails = [
-      { label: "Status", value: "success" || "N/A" },
-      { label: "Id Number", value: idNumber ? idNumber.toString() : "N/A" },
-      { label: "Name", value: responseData.data.name ? responseData.data.name.toString() : "N/A" },
-      { label: "Age", value: responseData.data.age ? responseData.data.age.toString() : "N/A" },
-      { label: "Gender", value: responseData.data.gender ? responseData.data.gender.toString() : "N/A" },
-      { label: "Relation Name", value: responseData.data.relation_name ? responseData.data.relation_name.toString() : "N/A" },
-      { label: "Relation Type", value: responseData.data.relation_type ? responseData.data.relation_type.toString() : "N/A" },
-      { label: "State", value: responseData.data.state ? responseData.data.state.toString() : "N/A" },
-      { label: "District", value: responseData.data.district ? responseData.data.district.toString() : "N/A" },
-      { label: "Polling Station", value: responseData.data.polling_station ? responseData.data.polling_station.toString() : "N/A" },
-      { label: "Assembly Constituency", value: responseData.data.assembly_constituency ? responseData.data.assembly_constituency.toString() : "N/A" },
-      { label: "Constituency Number", value: responseData.data.assembly_constituency_number ? responseData.data.assembly_constituency_number.toString() : "N/A" },
-      { label: "Part Number", value: responseData.data.part_number ? responseData.data.part_number.toString() : "N/A" },
-      { label: "Part Name", value: responseData.data.part_name ? responseData.data.part_name.toString() : "N/A" },
-      { label: "Parliamentary Name", value: responseData.data.parliamentary_name ? responseData.data.parliamentary_name.toString() : "N/A" },
-      { label: "Parliamentary Number", value: responseData.data.parliamentary_number ? responseData.data.parliamentary_number.toString() : "N/A" }
+         { label: "Status", value: "success" || "N/A" },
+        { label: "Id Number", value: idNumber ? idNumber.toString() : "N/A" },
+        { label: "Name", value: responseData.data?.[0]?.name ? responseData.data?.[0]?.name.toString() : "N/A" },
+        { label: "Age", value: responseData.data?.[0]?.age ? responseData.data?.[0]?.age.toString() : "N/A" },
+        { label: "Gender", value: responseData.data?.[0]?.gender ? responseData.data?.[0]?.gender.toString() : "N/A" },
+        { label: "Relation Name", value: responseData.data?.[0]?.relation_name ? responseData.data?.[0]?.relation_name.toString() : "N/A" },
+        { label: "Relation Type", value: responseData.data?.[0]?.relation_type ? responseData.data?.[0]?.relation_type.toString() : "N/A" },
+        { label: "Area", value: responseData.data?.[0]?.area ? responseData.data?.[0]?.area.toString() : "N/A" },
+
+        { label: "State", value: responseData.data?.[0]?.state ? responseData.data?.[0]?.state.toString() : "N/A" },
+        { label: "District", value: responseData.data?.[0]?.district ? responseData.data?.[0]?.district.toString() : "N/A" },
+        { label: "Polling Station", value: responseData.data?.[0]?.polling_station ? responseData.data?.[0]?.polling_station.toString() : "N/A" },
+        { label: "Assembly Constituency", value: responseData.data?.[0]?.assembly_constituency ? responseData.data?.[0]?.assembly_constituency.toString() : "N/A" },
+        { label: "Constituency Number", value: responseData.data?.[0]?.assembly_constituency_number ? responseData.data?.[0]?.assembly_constituency_number.toString() : "N/A" },
+        { label: "Part Number", value: responseData.data?.[0]?.part_number ? responseData.data?.[0]?.part_number.toString() : "N/A" },
+        { label: "Part Name", value: responseData.data?.[0]?.part_name ? responseData.data?.[0]?.part_name.toString() : "N/A" },
+        { label: "Parliamentary Name", value: responseData.data?.[0]?.parliamentary_name ? responseData.data?.[0]?.parliamentary_name.toString() : "N/A" },
+        { label: "Parliamentary Number", value: responseData.data?.[0]?.parliamentary_number ? responseData.data?.[0]?.parliamentary_number.toString() : "N/A" },
+        { label: "SlNo Inpart", value: responseData.data?.[0]?.slno_inpart ? responseData.data?.[0]?.slno_inpart.toString() : "N/A" },
+        { label: "Section Number", value: responseData.data?.[0]?.section_no ? responseData.data?.[0]?.section_no.toString() : "N/A" },
+        { label: "State Code", value: responseData.data?.[0]?.st_code ? responseData.data?.[0]?.st_code.toString() : "N/A" },
+        { label: "Parliamentary Constituency", value: responseData.data?.[0]?.parliamentary_constituency ? responseData.data?.[0]?.parliamentary_constituency.toString() : "N/A" },
+        { label: "Id", value: responseData.data?.[0]?.id ? responseData.data?.[0]?.id.toString() : "N/A" }
     ];
   
     doc.setFont("helvetica", "bold");
-    let yOffset = contentY;
-  
     userDetails.forEach(item => {
-      doc.text(`${item.label} :`, contentX + 2, yOffset - 6);
-      doc.setFont("helvetica", "normal");
-      doc.text(item.value, contentX + 54, yOffset - 6);
-      yOffset += 10; // Adjust the Y offset for the next line
+        doc.text(`${item.label} :`, contentX + 2, yOffset);
+        doc.setFont("helvetica", "normal");
+  
+        // Handle line breaking for NIC Data
+        const splitText = doc.splitTextToSize(item.value, 120);
+        doc.text(splitText, contentX + 60, yOffset);
+  
+        yOffset += splitText.length * 7; // Increased line height spacing
     });
   
-    // Footer with signatures
+    // Footer with Signatures
     doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 238);
-    doc.text("Signature of the Branch Manager", 110, 238);
-  
+    doc.text("Signature of the Authorised Signatory", 14, 246);
+    doc.text("Signature of the Branch Manager", 110, 246);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 248);
-    doc.text("Name: __________________", 110, 248);
-  
-    doc.text("Designation: ____________", 14, 258);
-    doc.text("Designation: ____________", 110, 258);
-  
-    doc.text("Phone no.: ______________", 14, 268);
-    doc.text("Date: ___________________", 110, 268);
-  
-    // Bank Seal
-    doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 280);
-    doc.text("Verified By : User", 120, 280);
+    doc.text("Name: __________________", 14, 255);
+    doc.text("Name: __________________", 110, 255);
+    doc.text("Designation: ____________", 14, 265);
+    doc.text("Designation: ____________", 110, 265);
+    doc.text("Phone no.: ______________", 14, 275);
+    doc.text("Date: ___________________", 110, 275);
+    doc.text("(Bank Seal)", 14, 288);
+    doc.text("Verified By : User", 120, 288);
   
     // Save PDF
-    const fileName = idNumber ? `${responseData.data.name}_verification_certificate.pdf` : "verification_certificate.pdf";
+    const fileName = `${nicData.name || "User"}_verification_certificate.pdf`;
     doc.save(fileName);
   };
+  
 
   const styles={
     statusBar: {
@@ -453,59 +465,83 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Name :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Age :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.age || "N/A"}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.age || "N/A"}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Gender :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.gender}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.gender}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Relation Name :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.relation_name || "N/A"}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.relation_name || "N/A"}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Relation Type :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.relation_type || "N/A"}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.relation_type || "N/A"}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Area:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.area}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>State:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.state}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.state}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>District:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.district}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.district}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Polling Station:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.polling_station}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.polling_station}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Assembly Constituency:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.assembly_constituency}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Constituency Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.assembly_constituency_number}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.part_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.part_number}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Name:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.part_name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.part_name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Name:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.parliamentary_name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.parliamentary_number}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>SlNo Inpart:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.slno_inpart}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Section Number:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.section_no}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>State Code:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.st_code}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Constituency:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.parliamentary_constituency ? responseData.data?.[0]?.parliamentary_constituency : "N/A"}</td>
+           </tr>
+           <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Id:</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.id}</td>
            </tr>
          </tbody>
        </table>

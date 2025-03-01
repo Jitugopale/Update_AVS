@@ -20,35 +20,56 @@ const RegisterPage = () => {
     // Automatically update the `dateOfAdmission` field in the form
     setFormData((prevFormData) => ({
       ...prevFormData,
-      dateOfAdmission: formatDate(currentDate),
+      clientdoj: formatDate(currentDate),
     }));
 
     return () => clearInterval(timer); // Cleanup the timer
   }, []);
 
+  // const formatDate = (date) => {
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  //   const year = date.getFullYear();
+  //   return `${day}/${month}/${year}`;
+  // };
   const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+    return date.toISOString(); // Converts to "YYYY-MM-DDTHH:mm:ssZ"
+};
+
   const [formData, setFormData] = useState({
-    bankName: "",
-    noOfBranches: "",
-    address: "",
-    totalTurnover: "",
-    state: "",
-    email: "",
-    projectOfficer: "",
-    registrationNo: "",
-    contactPerson: "",
-    mobile: "",
-    district: "",
-    taluka: "",
-    pinCode: "",
-    dateOfAdmission: formatDate // Automatically generated
+    clientnm: "",
+    clientnobranches: "",
+    clientadD1: "",
+    clienttouronver: "",
+    statecd: "",
+    mailid: "",
+    officernm: "",
+    socregno: "",
+    cntctprsn: "",
+    moB1: "",
+    districtcd: "",
+    talukacd: "",
+    pincode: "",
+    clientdoj: formatDate // Automatically generated
   });
 
+  
+  // const [formData, setFormData] = useState({
+  //   CLIENTNM: "",
+  //   CLIENTNOBRANCHES: "",
+  //   CLIENTADD1: "",
+  //   CLIENTTOURONVER: "",
+  //   STATECD: "",
+  //   MAILID: "",
+  //   OFFICERNM: "",
+  //   registrationNo: "",
+  //   CNTCTPRSN: "",
+  //   MOB1: "",
+  //   DISTRICTCD: "",
+  //   TALUKACD: "",
+  //   PINCODE: "",
+  //   dateOfAdmission: formatDate // Automatically generated
+  // });
   const [currentDate, setCurrentDate] = useState(new Date());
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -67,9 +88,10 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/bankuser", formData);
+      const response = await axios.post("http://localhost/DocVerification/api/BankRegister", formData);
+      console.log(response)
 
-      if (response.status === 201) {
+      if (response.data.outcome.outcomeId === 1) {
         setSuccess("Registration successful! Redirecting to login...");
         setError("");
         setTimeout(() => {
@@ -110,10 +132,10 @@ const RegisterPage = () => {
   <input
     type="text"
     className="form-control"
-    id="bankName"
-    name="bankName"
+    id="clientnm"
+    name="clientnm"
     placeholder="Bank Name"
-    value={formData.bankName}
+    value={formData.clientnm}
     onChange={handleChange}
     required
     style={{ flexGrow: 1 }}
@@ -122,13 +144,13 @@ const RegisterPage = () => {
 
   <div className="col-12 col-md-4 d-flex flex-column flex-md-row align-items-start mb-3">
     <label
-      htmlFor="dateOfAdmission"
+      htmlFor="clientdoj"
       className="form-label text-start mt-2"
       style={{width:'300px', maxWidth:'300px',marginLeft:'15px'}}
     >
       Date of Admission
     </label>
-    <p className="form-control" id="dateOfAdmission" style={{ flexGrow: 1 ,backgroundColor:"#D3D3D3"}}>
+    <p className="form-control" id="clientdoj" style={{ flexGrow: 1 ,backgroundColor:"#D3D3D3"}}>
         {formatDate(currentDate)}
       </p>
   </div>
@@ -136,14 +158,14 @@ const RegisterPage = () => {
 
         <div className="row" id="stars">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
-            <label htmlFor="noOfBranches" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>No of Branches <span style={{ color: "red" }}>*</span></label>
+            <label htmlFor="clientnobranches" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>No of Branches <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               className="form-control"
-              id="noOfBranches"
-              name="noOfBranches"
+              id="clientnobranches"
+              name="clientnobranches"
               placeholder="No of Branches"
-              value={formData.noOfBranches}
+              value={formData.clientnobranches}
               onChange={handleChange}
               required
             />
@@ -153,10 +175,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="registrationNo"
-              name="registrationNo"
+              id="socregno"
+              name="socregno"
               placeholder="Bank Registration No"
-              value={formData.registrationNo}
+              value={formData.socregno}
               onChange={handleChange}
               required
             />
@@ -167,10 +189,10 @@ const RegisterPage = () => {
             <label htmlFor="address" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Address <span style={{ color: "red" }}>*</span></label>
             <textarea
               className="form-control"
-              id="address"
-              name="address"
+              id="clientadD1"
+              name="clientadD1"
               rows="2"
-              value={formData.address}
+              value={formData.clientadD1}
               placeholder="Address"
               onChange={handleChange}
               required
@@ -181,10 +203,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="contactPerson"
-              name="contactPerson"
+              id="cntctprsn"
+              name="cntctprsn"
               placeholder="Contact Person Name"
-              value={formData.contactPerson}
+              value={formData.cntctprsn}
               onChange={handleChange}
               required
             />
@@ -196,10 +218,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="totalTurnover"
-              name="totalTurnover"
+              id="clienttouronver"
+              name="clienttouronver"
               placeholder="Total Turnover of Bank"
-              value={formData.totalTurnover}
+              value={formData.clienttouronver}
               onChange={handleChange}
               required
             />
@@ -209,10 +231,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="mobile"
-              name="mobile"
+              id="moB1"
+              name="moB1"
               placeholder="Mobile Number"
-              value={formData.mobile}
+              value={formData.moB1}
               onChange={handleChange}
               required
             />
@@ -236,10 +258,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="state"
-              name="state"
+              id="statecd"
+              name="statecd"
               placeholder="State"
-              value={formData.state}
+              value={formData.statecd}
               onChange={handleChange}
               required
             />
@@ -249,10 +271,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="district"
-              name="district"
+              id="districtcd"
+              name="districtcd"
               placeholder="District "
-              value={formData.district}
+              value={formData.districtcd}
               onChange={handleChange}
               required
             />
@@ -264,9 +286,9 @@ const RegisterPage = () => {
             <input
               type="email"
               className="form-control"
-              id="email"
-              name="email"
-              value={formData.email}
+              id="mailid"
+              name="mailid"
+              value={formData.mailid}
               placeholder="Email ID"
               onChange={handleChange}
               required
@@ -277,10 +299,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="taluka"
-              name="taluka"
+              id="talukacd"
+              name="talukacd"
               placeholder="Taluka"
-              value={formData.taluka}
+              value={formData.talukacd}
               onChange={handleChange}
               required
             />
@@ -291,9 +313,9 @@ const RegisterPage = () => {
             <label htmlFor="projectOfficer" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Name Project Officer <span style={{ color: "red" }}>*</span></label>
             <select
               className="form-control"
-              id="projectOfficer"
-              name="projectOfficer"
-              value={formData.projectOfficer}
+              id="officernm"
+              name="officernm"
+              value={formData.officernm}
               onChange={handleChange}
               required
             >
@@ -307,10 +329,10 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="pinCode"
+              id="pincode"
               placeholder="Pin Code"
-              name="pinCode"
-              value={formData.pinCode}
+              name="pincode"
+              value={formData.pincode}
               onChange={handleChange}
               required
             />

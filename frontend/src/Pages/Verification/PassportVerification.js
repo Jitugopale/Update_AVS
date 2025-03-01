@@ -54,15 +54,15 @@ const PassportVerification = () => {
     const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
         const excelData = verifiedUsers.map((user, index) => ({
-        'SrNo': index + 1,  // Serial number
-        'Passport ID': user?.verifiedData?.data?.file_number || "N/A",  // Passport ID
-        'Name': user?.verifiedData?.data?.full_name || "N/A",  // Full name
-        'DOB': user?.verifiedData?.data?.dob || "N/A",  // Date of Birth
-        'Date of Application': user?.verifiedData?.data?.date_of_application || "N/A",  // Date of Application
-        'Application Type': user?.verifiedData?.data?.application_type || "N/A",  // Application Type
-        'Status': user?.verifiedData?.data?.status ? 'Verified' : 'Not Verified',  // Status
-        'Reference ID': user?.verifiedData?.data?.reference_id || "N/A",
-        'Verification Date': user.formattedDate,
+          'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+          'File Number': user?.file_number || "N/A",  // Passport ID
+            'Full Name': user?.full_name || "N/A",  // Full name
+            'DOB': user?.dob || "N/A",  // Date of Birth
+            'Date of Application': user?.date_of_application || "N/A",  // Date of Application
+            'Application Type': user?.application_type || "N/A",  // Application Type
+            'Status': user?.status,  // Status
+            'Reference ID': user?.reference_id || "N/A",
+            'Verification Date': user.VerifiedDate,
     }));
     
       // Create a new workbook
@@ -83,9 +83,9 @@ const PassportVerification = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/passport/verified"
+          "http://localhost/DocVerification/api/Passport/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -105,12 +105,10 @@ const PassportVerification = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/passport/passport_verify', { 
-        id_number: idNumber, 
-        dob 
-      });
+      const res = await axios.post(`http://localhost/DocVerification/api/Passport/VerifyPassport?id_number=${idNumber}&dob=${dob}`);
       if (res.data.status === 'success') {
-        setResponseData(res.data.verifiedData);
+        setResponseData(res.data);
+        console.log(res.data)
       } else {
         setError(res.data.message || 'Verification failed. Please try again.');
       }
@@ -150,8 +148,8 @@ const PassportVerification = () => {
   
     // Verification Statement
     const verificationText = `This is to Certify that ${
-       responseData.data.full_name || "N/A"
-    }, Voter ID No. ${responseData.data.file_number} are verified.`;
+      responseData.data?.[0]?.full_name || "N/A"
+    }, Voter ID No. ${responseData.data?.[0]?.file_number} are verified.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
   
@@ -187,32 +185,38 @@ const PassportVerification = () => {
     doc.setFont("helvetica", "bold");
     doc.text("File Number                 :", contentX + 2, contentY + 15);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.file_number ? responseData.data.file_number.toString() : "N/A", contentX + 54, contentY + 15);
+    doc.text(responseData.data?.[0]?.file_number ? responseData.data?.[0]?.file_number.toString() : "N/A", contentX + 54, contentY + 15);
   
     doc.setFont("helvetica", "bold");
     doc.text("Full Name                     :", contentX + 2, contentY + 25);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.full_name ? responseData.data.full_name.toString() : "N/A", contentX + 54, contentY + 25); 
+    doc.text(responseData.data?.[0]?.full_name ? responseData.data?.[0]?.full_name.toString() : "N/A", contentX + 54, contentY + 25); 
   
     doc.setFont("helvetica", "bold");
     doc.text("Date of Birth                 :", contentX + 2, contentY + 35);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.dob ? responseData.data.dob.toString() : "N/A", contentX + 54, contentY + 35);
+    doc.text(responseData.data?.[0]?.dob ? responseData.data?.[0]?.dob.toString() : "N/A", contentX + 54, contentY + 35);
   
     doc.setFont("helvetica", "bold");
     doc.text("Date of Application      :", contentX + 2, contentY + 45);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.date_of_application ? responseData.data.date_of_application.toString() : "N/A", contentX + 54, contentY + 45);
+    doc.text(responseData.data?.[0]?.date_of_application ? responseData.data?.[0]?.date_of_application.toString() : "N/A", contentX + 54, contentY + 45);
   
     doc.setFont("helvetica", "bold");
     doc.text("Application Type          :", contentX + 2, contentY + 55);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.application_type ? responseData.data.application_type.toString() : "N/A", contentX + 54, contentY + 55);
+    doc.text(responseData.data?.[0]?.application_type ? responseData.data?.[0]?.application_type.toString() : "N/A", contentX + 54, contentY + 55);
   
     doc.setFont("helvetica", "bold");
-    doc.text("Verification Date           :", contentX + 2, contentY + 65);
+    doc.text("Reference ID          :", contentX + 2, contentY + 65);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.formattedDate ? responseData.data.toString() : "N/A", contentX + 54, contentY + 65);
+    doc.text(responseData.data?.[0]?.reference_id ? responseData.data?.[0]?.reference_id.toString() : "N/A", contentX + 54, contentY + 65);
+  
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Verification Date           :", contentX + 2, contentY + 75);
+    doc.setFont("helvetica", "normal");
+    doc.text(responseData.data?.[0]?.VerifiedDate ? responseData.data?.[0]?.VerifiedDate.toString() : "N/A", contentX + 54, contentY + 75);
     
     // Footer with signatures
     doc.setFont("helvetica", "bold");
@@ -235,8 +239,8 @@ const PassportVerification = () => {
     doc.text("Verified By : User", 120, 256);
   
     // Save PDF
-    const fileName =responseData.data.file_number
-      ? `${responseData.data.full_name}_verification_certificate.pdf`
+    const fileName =responseData.data?.[0]?.file_number
+      ? `${responseData.data?.[0]?.full_name}_verification_certificate.pdf`
       : "verification_certificate.pdf";
     doc.save(fileName);
   };
@@ -361,63 +365,67 @@ const PassportVerification = () => {
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>File Number :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.file_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.file_number}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Full Name :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.full_name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.full_name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Reference ID :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.reference_id}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0].reference_id}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Birth :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.dob}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.dob}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Date of Application :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.date_of_application}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.date_of_application}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Application Type :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.application_type}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.application_type}</td>
            </tr>
+           {/* <tr>
+             <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Client Id :</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.client_id}</td>
+           </tr> */}
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Status :</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.status}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.status}</td>
            </tr>
            {/* <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>District:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.district}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.district}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Polling Station:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.polling_station}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.polling_station}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Assembly Constituency:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.assembly_constituency}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Constituency Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.assembly_constituency_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.assembly_constituency_number}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.part_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.part_number}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Part Name:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.part_name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.part_name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Name:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_name}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.parliamentary_name}</td>
            </tr>
            <tr>
              <td style={{ fontWeight: 'bold', textAlign: 'left' }}>Parliamentary Number:</td>
-             <td style={{ textAlign: 'left' }}>{responseData.data.parliamentary_number}</td>
+             <td style={{ textAlign: 'left' }}>{responseData.data?.[0]?.parliamentary_number}</td>
            </tr> */}
          </tbody>
        </table>

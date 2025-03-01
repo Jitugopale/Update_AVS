@@ -18,7 +18,7 @@ const PancardTable = () => {
     // Filter the users based on the date range
     const filteredUsers = verifiedUsers.filter((user) => {
       // Parse `formattedDate` into a JavaScript Date object
-      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
       const userVerificationDate = new Date(year, month - 1, day); // Create Date object
   
       let isInDateRange = true;
@@ -59,9 +59,9 @@ const PancardTable = () => {
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user,index) => ({
       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'Pan No': user.verifiedData.pan_number,
-      'Name': user.verifiedData.full_name,
-      'Verification Date': user.formattedDate,
+      'Pan No': user.PanNumber,
+      'Name': user.Name,
+      'Verification Date': user.VerifiedDate,
     }));
   
     // Prepare data for Excel
@@ -78,9 +78,10 @@ const PancardTable = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/pan/verified"
+          "http://localhost/DocVerification/api/Pan/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -199,8 +200,8 @@ const handleDownloadPdf = (user) => {
 
   // Verification Statement
   const verificationText = `This is to Certify that ${
-    user.verifiedData.full_name || "N/A"
-  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${user.verifiedData.pan_number}.`;
+    user.Name || "N/A"
+  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${user.PanNumber}.`;
   const verificationSplit = doc.splitTextToSize(verificationText, 180);
   doc.text(verificationSplit, 14, 50);
 
@@ -231,12 +232,12 @@ const handleDownloadPdf = (user) => {
   doc.setFont("helvetica", "bold");
   doc.text("Name                    :", contentX + 2, contentY + 5);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.full_name || "N/A", contentX + 40, contentY + 5);
+  doc.text(user.Name  ? user.Name.toString() : "N/A", contentX + 40, contentY + 5);
 
   doc.setFont("helvetica", "bold");
   doc.text("Pan Number :", contentX + 2, contentY + 15);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.pan_number ? user.verifiedData.pan_number.toString() : "N/A", contentX + 40, contentY + 15);
+  doc.text(user.PanNumber ? user.PanNumber.toString() : "N/A", contentX + 40, contentY + 15);
 
   
   // Footer with signatures
@@ -260,8 +261,8 @@ const handleDownloadPdf = (user) => {
   doc.text("Verified By : User", 120, 180);
 
   // Save PDF
-  const fileName =user.verifiedData.pan_number
-    ? `${user.verifiedData.full_name}_verification_certificate.pdf`
+  const fileName =user.Name
+    ? `${user.Name}_verification_certificate.pdf`
     : "verification_certificate.pdf";
   doc.save(fileName);
 };
@@ -370,7 +371,7 @@ const handleDownloadPdf = (user) => {
           {verifiedUsers
   .filter((user) => {
     // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
     let isInDateRange = true;
@@ -409,9 +410,9 @@ const handleDownloadPdf = (user) => {
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.pan_number}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.full_name || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.PanNumber}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.Name || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

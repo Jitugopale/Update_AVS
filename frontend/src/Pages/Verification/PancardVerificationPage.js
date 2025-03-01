@@ -60,9 +60,10 @@ const PancardVerificationPage = ({
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/pan/verified"
+          "http://localhost/DocVerification/api/Pan/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
+        console.log(response.data.data)
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -73,11 +74,10 @@ const PancardVerificationPage = ({
    const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
       const excelData = verifiedUsers.map((user, index) => ({
-        SrNo: index + 1,
         'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'Pan No': user.verifiedData.pan_number,
-      'Name': user.verifiedData.full_name,
-      'Verification Date': user.formattedDate,
+      'Pan No': user.PanNumber,
+      'Name': user.Name,
+      'Verification Date': user.VerifiedDate,
       }));
     
       // Create a new workbook
@@ -101,11 +101,9 @@ const PancardVerificationPage = ({
     setError(null); // Clear any previous errors
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/pan/verifyPanCard",
-        { pannumber }
-      );
-      setVerificationResult(response.data.verifiedData);
+      const response = await axios.post(`http://localhost/DocVerification/api/Pan/VerifyPan?pannumber=${pannumber}`);
+      setVerificationResult(response.data);
+      console.log(response.data)
       setSuccessMessage("PAN Card verified successfully!");
     } catch (error) {
       console.error("Error verifying PAN card", error);
@@ -184,8 +182,8 @@ const generatePDF = () => {
 
   // Verification Statement
   const verificationText = `This is to Certify that ${
-    verificationResult.full_name || "N/A"
-  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${verificationResult.pan_number}.`;
+    verificationResult.data?.[0]?.Name|| "N/A"
+  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${verificationResult.data?.[0]?.PanNumber}.`;
   const verificationSplit = doc.splitTextToSize(verificationText, 180);
   doc.text(verificationSplit, 14, 50);
 
@@ -216,12 +214,12 @@ const generatePDF = () => {
   doc.setFont("helvetica", "bold");
   doc.text("Name                    :", contentX + 2, contentY + 5);
   doc.setFont("helvetica", "normal");
-  doc.text(verificationResult.full_name || "N/A", contentX + 40, contentY + 5);
+  doc.text(verificationResult.data?.[0]?.Name|| "N/A", contentX + 40, contentY + 5);
 
   doc.setFont("helvetica", "bold");
   doc.text("Pan Number :", contentX + 2, contentY + 15);
   doc.setFont("helvetica", "normal");
-  doc.text(verificationResult.pan_number ? verificationResult.pan_number.toString() : "N/A", contentX + 40, contentY + 15);
+  doc.text(verificationResult.data?.[0]?.PanNumber ? verificationResult.data?.[0]?.PanNumber.toString() : "N/A", contentX + 40, contentY + 15);
 
   
   // Footer with signatures
@@ -245,8 +243,8 @@ const generatePDF = () => {
   doc.text("Verified By : User", 120, 180);
 
   // Save PDF
-  const fileName =verificationResult.pan_number
-    ? `${verificationResult.full_name}_verification_certificate.pdf`
+  const fileName =verificationResult.data?.[0]?.PanNumber
+    ? `${verificationResult.data?.[0]?.Name}_verification_certificate.pdf`
     : "verification_certificate.pdf";
   doc.save(fileName);
 };
@@ -343,8 +341,8 @@ const inputStyle = {
         {verificationResult && (
           <div className="mt-4">
             <h3 className="text-success text-center">PAN Verification Result</h3>
-            <p className="text-center">Name: {verificationResult.full_name}</p>
-            <p className="text-center">PAN Number: {verificationResult.pan_number}</p>
+            <p className="text-center">Name: {verificationResult.data?.[0]?.Name}</p>
+            <p className="text-center">PAN Number: {verificationResult.data?.[0]?.PanNumber}</p>
 
             {/* Button to download PDF */}
             <div className="text-center mt-3">

@@ -19,7 +19,7 @@ const PassPortTable = () => {
     // Filter the users based on the date range
     const filteredUsers = verifiedUsers.filter((user) => {
       // Parse `formattedDate` into a JavaScript Date object
-      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
       const userVerificationDate = new Date(year, month - 1, day); // Create Date object
   
       let isInDateRange = true;
@@ -60,14 +60,14 @@ const PassPortTable = () => {
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user,index) => ({
       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-      'Passport ID': user?.verifiedData?.data?.file_number || "N/A",  // Passport ID
-        'Name': user?.verifiedData?.data?.full_name || "N/A",  // Full name
-        'DOB': user?.verifiedData?.data?.dob || "N/A",  // Date of Birth
-        'Date of Application': user?.verifiedData?.data?.date_of_application || "N/A",  // Date of Application
-        'Application Type': user?.verifiedData?.data?.application_type || "N/A",  // Application Type
-        'Status': user?.verifiedData?.data?.status ? 'Verified' : 'Not Verified',  // Status
-        'Reference ID': user?.verifiedData?.data?.reference_id || "N/A",
-        'Verification Date': user.formattedDate,
+      'File Number': user?.file_number || "N/A",  // Passport ID
+        'Full Name': user?.full_name || "N/A",  // Full name
+        'DOB': user?.dob || "N/A",  // Date of Birth
+        'Date of Application': user?.date_of_application || "N/A",  // Date of Application
+        'Application Type': user?.application_type || "N/A",  // Application Type
+        'Status': user?.status,  // Status
+        'Reference ID': user?.reference_id || "N/A",
+        'Verification Date': user.VerifiedDate,
     }));
   
     // Prepare data for Excel
@@ -84,9 +84,10 @@ const PassPortTable = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/passport/verified"
+          "http://localhost/DocVerification/api/Passport/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -206,8 +207,8 @@ const handleDownloadPdf = (user) => {
 
   // Verification Statement
   const verificationText = `This is to Certify that ${
-    user.verifiedData.data.full_name || "N/A"
-  }, Voter ID No. ${user.verifiedData.data.file_number} are verified.`;
+    user.full_name || "N/A"
+  }, Voter ID No. ${user.file_number} are verified.`;
   const verificationSplit = doc.splitTextToSize(verificationText, 180);
   doc.text(verificationSplit, 14, 50);
 
@@ -238,37 +239,43 @@ const handleDownloadPdf = (user) => {
   doc.setFont("helvetica", "bold");
   doc.text("Status                           :", contentX + 2, contentY + 5);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.message || "N/A", contentX + 54, contentY + 5);
+  doc.text("success", contentX + 54, contentY + 5);
 
   doc.setFont("helvetica", "bold");
   doc.text("File Number                 :", contentX + 2, contentY + 15);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.data.file_number ? user.verifiedData.data.file_number.toString() : "N/A", contentX + 54, contentY + 15);
+  doc.text(user.file_number ? user.file_number.toString() : "N/A", contentX + 54, contentY + 15);
 
   doc.setFont("helvetica", "bold");
   doc.text("Full Name                     :", contentX + 2, contentY + 25);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.data.full_name ? user.verifiedData.data.full_name.toString() : "N/A", contentX + 54, contentY + 25); 
+  doc.text(user.full_name ? user.full_name.toString() : "N/A", contentX + 54, contentY + 25); 
 
   doc.setFont("helvetica", "bold");
   doc.text("Date of Birth                 :", contentX + 2, contentY + 35);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.data.dob ? user.verifiedData.data.dob.toString() : "N/A", contentX + 54, contentY + 35);
+  doc.text(user.dob ? user.dob.toString() : "N/A", contentX + 54, contentY + 35);
 
   doc.setFont("helvetica", "bold");
   doc.text("Date of Application      :", contentX + 2, contentY + 45);
   doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.data.date_of_application ? user.verifiedData.data.date_of_application.toString() : "N/A", contentX + 54, contentY + 45);
+  doc.text(user.date_of_application ? user.date_of_application.toString() : "N/A", contentX + 54, contentY + 45);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Application Type          :", contentX + 2, contentY + 55);
-  doc.setFont("helvetica", "normal");
-  doc.text(user.verifiedData.data.application_type ? user.verifiedData.data.application_type.toString() : "N/A", contentX + 54, contentY + 55);
+    doc.text("Application Type          :", contentX + 2, contentY + 55);
+    doc.setFont("helvetica", "normal");
+    doc.text(user.application_type ? user.application_type.toString() : "N/A", contentX + 54, contentY + 55);
+  
+    doc.setFont("helvetica", "bold");
+    doc.text("Reference ID          :", contentX + 2, contentY + 65);
+    doc.setFont("helvetica", "normal");
+    doc.text(user.reference_id ? user.reference_id.toString() : "N/A", contentX + 54, contentY + 65);
+  
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Verification Date           :", contentX + 2, contentY + 65);
-  doc.setFont("helvetica", "normal");
-  doc.text(user.formattedDate ? user.formattedDate.toString() : "N/A", contentX + 54, contentY + 65);
+    doc.setFont("helvetica", "bold");
+    doc.text("Verification Date           :", contentX + 2, contentY + 75);
+    doc.setFont("helvetica", "normal");
+    doc.text(user.VerifiedDate ? user.VerifiedDate.toString() : "N/A", contentX + 54, contentY + 75);
   
   // Footer with signatures
   doc.setFont("helvetica", "bold");
@@ -291,8 +298,8 @@ const handleDownloadPdf = (user) => {
   doc.text("Verified By : User", 120, 256);
 
   // Save PDF
-  const fileName =user.verifiedData.data.file_number
-    ? `${user.verifiedData.data.full_name}_verification_certificate.pdf`
+  const fileName =user.file_number
+    ? `${user.full_name}_verification_certificate.pdf`
     : "verification_certificate.pdf";
   doc.save(fileName);
 };
@@ -498,7 +505,7 @@ const handleDownloadPdf = (user) => {
           {verifiedUsers
   .filter((user) => {
     // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
     let isInDateRange = true;
@@ -537,11 +544,11 @@ const handleDownloadPdf = (user) => {
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.file_number}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.full_name || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.dob || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.date_of_application || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.file_number}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.full_name || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.dob || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.date_of_application || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

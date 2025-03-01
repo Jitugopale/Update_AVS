@@ -635,7 +635,7 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 //   const enquiryId = `MF${middlePart}_${suffix}`;
 
 //   return enquiryId;
-// };
+// };Fpan
 
 export const creditReportCheckController = async (req, res) => {
   const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;

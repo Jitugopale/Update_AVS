@@ -15,79 +15,81 @@ const PanDetailTable = () => {
   const [users, setUsers] = useState([]); // State to store users list
 
   
-    const handleDownload = () => {
-      // Filter the users based on the date range
-      const filteredUsers = verifiedUsers.filter((user) => {
-        // Parse `formattedDate` into a JavaScript Date object
-        const [day, month, year] = user.formattedDate.split("/").map(Number);
-        const userVerificationDate = new Date(year, month - 1, day); // Create Date object
+    // const handleDownloadExcel = () => {
+    //   // Filter the users based on the date range
+    //   const filteredUsers = verifiedUsers.filter((user) => {
+    //     // Parse `formattedDate` into a JavaScript Date object
+    //     const [day, month, year] = user.VerifiedDate.split("-").map(Number);
+    //     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
     
-        let isInDateRange = true;
+    //     let isInDateRange = true;
     
-        // Parse startDate and endDate from the input fields
-        const startDateObj = startDate ? new Date(startDate) : null;
-        let endDateObj = endDate ? new Date(endDate) : null;
+    //     // Parse startDate and endDate from the input fields
+    //     const startDateObj = startDate ? new Date(startDate) : null;
+    //     let endDateObj = endDate ? new Date(endDate) : null;
     
-        // Adjust endDate to include the full day
-        if (endDateObj) {
-          endDateObj.setHours(23, 59, 59, 999);
-        }
+    //     // Adjust endDate to include the full day
+    //     if (endDateObj) {
+    //       endDateObj.setHours(23, 59, 59, 999);
+    //     }
     
-        // Include users with a `formattedDate` equal to `startDate`
-        if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
-          return true;
-        }
+    //     // Include users with a `formattedDate` equal to `startDate`
+    //     if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+    //       return true;
+    //     }
     
-        // Handle case where startDate equals endDate (specific day filtering)
-        if (startDate && endDate && startDate === endDate) {
-          isInDateRange =
-            userVerificationDate.toDateString() === startDateObj.toDateString();
-        } else {
-          // General range filtering
-          isInDateRange =
-            (!startDateObj || userVerificationDate >= startDateObj) &&
-            (!endDateObj || userVerificationDate <= endDateObj);
-        }
+    //     // Handle case where startDate equals endDate (specific day filtering)
+    //     if (startDate && endDate && startDate === endDate) {
+    //       isInDateRange =
+    //         userVerificationDate.toDateString() === startDateObj.toDateString();
+    //     } else {
+    //       // General range filtering
+    //       isInDateRange =
+    //         (!startDateObj || userVerificationDate >= startDateObj) &&
+    //         (!endDateObj || userVerificationDate <= endDateObj);
+    //     }
     
-        return isInDateRange;
-      });
+    //     return isInDateRange;
+    //   });
     
-      if (filteredUsers.length === 0) {
-        alert('No data to download');
-        return;
-      }
+    //   if (filteredUsers.length === 0) {
+    //     alert('No data to download');
+    //     return;
+    //   }
     
-      // Map the filtered data to match the desired format for Excel export
-      const exportData = filteredUsers.map((user,index) => ({
-        'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-        'Pan No': user.verifiedData.data.idNumber,
-        'First Name': user.verifiedData.data.firstName,
-        'Fathers Name': user.verifiedData.data.middleName,
-        'Last Name': user.verifiedData.data.lastName,
-        'Full Name': user.verifiedData.data.fullName,
-        'PAN Status::': user.verifiedData.data.panStatus,
-        'Category:': user.verifiedData.data.category,
-        'Aadhaar Seeding Status:': user.verifiedData.data.aadhaarSeedingStatus === "NULL" ? "Not Identified" : user.verifiedData?.data?.aadhaarSeedingStatus,
-        'Verification Date': user.formattedDate,
-      }));
+    //   // Map the filtered data to match the desired format for Excel export
+    //   const exportData = filteredUsers.map((user,index) => ({
+    //     'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+    //     'Pan No': user.data.pan_number,
+    //     'First Name': user.data.pan_number,
+    //     'Fathers Name': user.data.pan_number,
+    //     'Last Name': user.data.pan_number,
+    //     'Full Name': user.data.pan_number,
+    //     'PAN Status::': user.data.pan_number,
+    //     'Category:': user.data.pan_number,
+    //     'Aadhaar Seeding Status:': user.data.aadhaarSeedingStatus === "NULL" ? "Not Identified" : user.verifiedData?.data?.aadhaarSeedingStatus,
+    //     'Verification Date': user.VerifiedDate,
+    //   }));
     
-      // Prepare data for Excel
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Users');
+    //   // Prepare data for Excel
+    //   const worksheet = XLSX.utils.json_to_sheet(exportData);
+    //   const workbook = XLSX.utils.book_new();
+    //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Users');
     
-      // Generate Excel file and trigger download
-      XLSX.writeFile(workbook, 'filtered-users.xlsx');
-    };
+    //   // Generate Excel file and trigger download
+    //   XLSX.writeFile(workbook, 'filtered-users.xlsx');
+    // };
 
   // Fetch the verified users from the backend
   useEffect(() => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/pandetail/verified"
+          "http://localhost/DocVerification/api/PanDetail/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
+        console.log(response.data)
+        console.log(response.data.data)
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -95,7 +97,73 @@ const PanDetailTable = () => {
     fetchVerifiedUsers();
   },[]);
 
-
+  const handleDownloadExcel = () => {
+    // Filter users based on the date range
+    const filteredUsers = verifiedUsers.filter((user) => {
+      if (!user.VerifiedDate) return false; // Ensure the date field exists
+  
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
+      const userVerificationDate = new Date(year, month - 1, day);
+  
+      let isInDateRange = true;
+      const startDateObj = startDate ? new Date(startDate) : null;
+      let endDateObj = endDate ? new Date(endDate) : null;
+  
+      if (endDateObj) {
+        endDateObj.setHours(23, 59, 59, 999);
+      }
+  
+      if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+        return true;
+      }
+  
+      if (startDate && endDate && startDate === endDate) {
+        isInDateRange = userVerificationDate.toDateString() === startDateObj.toDateString();
+      } else {
+        isInDateRange = (!startDateObj || userVerificationDate >= startDateObj) &&
+                        (!endDateObj || userVerificationDate <= endDateObj);
+      }
+  
+      return isInDateRange;
+    });
+  
+    if (filteredUsers.length === 0) {
+      alert("No data to download");
+      return;
+    }
+  
+    console.log("Filtered Users:", filteredUsers); // Debugging: Log filtered users
+  
+    // Map data with checks for undefined fields
+    const exportData = filteredUsers.map((user, index) => {
+      const userData = user || {}; // Ensure user.data exists
+      console.log(user.data)
+      return {
+        "SrNo": index + 1,
+        "Pan No": userData.PanNumber || "N/A",
+        "First Name": userData.firstName || "N/A",
+        "Fathers Name": userData.middleName || "N/A",
+        "Last Name": userData.lastName || "N/A",
+        "Full Name": userData.fullName || "N/A",
+        "PAN Status": userData.panStatus || "N/A",
+        "Category": userData.category || "N/A",
+        "Reference Id": userData.reference_id || "N/A",
+        "Aadhaar Seeding Status": userData.aadhaarSeedingStatus === "NULL" 
+          ? "Not Identified" 
+          : userData.aadhaarSeedingStatus || "N/A",
+        "Verification Date": user.VerifiedDate || "N/A",
+      };
+    });
+  
+    // Prepare data for Excel
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Users");
+  
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, "filtered-users.xlsx");
+  };
+  
   
 
 //   const handleDelete = async (aadharNumber) => {
@@ -206,8 +274,8 @@ const handleDownloadPdf = (user) => {
   
     // Verification Statement
     const verificationText = `This is to Certify that ${
-      user.verifiedData.data.fullName || "N/A"
-    }, Pan No. ${user.verifiedData.data.idNumber} are verified from https://www.pan.utiitsl.com/.`;
+      user.fullName || "N/A"
+    }, Pan No. ${user.PanNumber} are verified from https://www.pan.utiitsl.com/.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
   
@@ -238,55 +306,65 @@ const handleDownloadPdf = (user) => {
     doc.setFont("helvetica", "bold");
     doc.text("Status                               :", contentX + 2, contentY + 5);
     doc.setFont("helvetica", "normal");
-    doc.text(user.status || "N/A", contentX + 54, contentY + 5);
+    doc.text("Success", contentX + 54, contentY + 5);
   
     doc.setFont("helvetica", "bold");
     doc.text("Id Number                        :", contentX + 2, contentY + 15);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.idNumber ? user.verifiedData.data.idNumber.toString() : "N/A", contentX + 54, contentY + 15);
+    doc.text(user.PanNumber ? user.PanNumber.toString() : "N/A", contentX + 54, contentY + 15);
 
     doc.setFont("helvetica", "bold");
     doc.text("First Name                       :", contentX + 2, contentY + 25);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.firstName ? user.verifiedData.data.firstName.toString() : "N/A", contentX + 54, contentY + 25);
+    doc.text(user.firstName ? user.firstName.toString() : "N/A", contentX + 54, contentY + 25);
 
     doc.setFont("helvetica", "bold");
     doc.text("Middle Name                    :", contentX + 2, contentY + 35);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.middleName ? user.verifiedData.data.middleName.toString() : "N/A", contentX + 54, contentY + 35);
+    doc.text(user.middleName ? user.middleName.toString() : "N/A", contentX + 54, contentY + 35);
 
     doc.setFont("helvetica", "bold");
     doc.text("Last Name                        :", contentX + 2, contentY + 45);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.lastName ? user.verifiedData.data.lastName.toString() : "N/A", contentX + 54, contentY + 45);
+    doc.text(user.lastName ? user.lastName.toString() : "N/A", contentX + 54, contentY + 45);
 
     doc.setFont("helvetica", "bold");
     doc.text("Full Name                         :", contentX + 2, contentY + 55);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.fullName ? user.verifiedData.data.fullName.toString() : "N/A", contentX + 54, contentY + 55);
+    doc.text(user.fullName ? user.fullName.toString() : "N/A", contentX + 54, contentY + 55);
 
     doc.setFont("helvetica", "bold");
     doc.text("PAN Status                       :", contentX + 2, contentY + 65);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.panStatus ? user.verifiedData.data.panStatus.toString() : "N/A", contentX + 54, contentY + 65);
+    doc.text(user.panStatus ? user.panStatus.toString() : "N/A", contentX + 54, contentY + 65);
 
     doc.setFont("helvetica", "bold");
     doc.text("Category                           :", contentX + 2, contentY + 75);
     doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData.data.category ? user.verifiedData.data.category.toString() : "N/A", contentX + 54, contentY + 75);
+    doc.text(user.category ? user.category.toString() : "N/A", contentX + 54, contentY + 75);
 
     doc.setFont("helvetica", "bold");
     doc.text("Aadhaar Seeding Status :", contentX + 2, contentY + 85);
     doc.setFont("helvetica", "normal");
     doc.text(
-      user.verifiedData.data.aadhaarSeedingStatus === "NULL"
+      user.aadhaarSeedingStatus === "NULL"
         ? "Not Identified"
-        : user.verifiedData.data.aadhaarSeedingStatus
-          ? user.verifiedData.data.aadhaarSeedingStatus.toString()
+        : user.aadhaarSeedingStatus
+          ? user.aadhaarSeedingStatus.toString()
           : "N/A",
       contentX + 54,
       contentY + 85
     );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Reference Id                     :", contentX + 2, contentY + 95);
+    doc.setFont("helvetica", "normal");
+    doc.text(user.reference_id ? user.reference_id.toString() : "N/A", contentX + 54, contentY + 95);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Verification Date              :", contentX + 2, contentY + 105);
+    doc.setFont("helvetica", "normal");
+    doc.text(user.VerifiedDate ? user.VerifiedDate.toString() : "N/A", contentX + 54, contentY + 105);
       
     
     // Footer with signatures
@@ -310,8 +388,8 @@ const handleDownloadPdf = (user) => {
     doc.text("Verified By : User", 120, 256);
   
     // Save PDF
-    const fileName =user.verifiedData.data.idNumber
-      ? `${user.verifiedData.data.fullName}_verification_certificate.pdf`
+    const fileName =user.PanNumber
+      ? `${user.fullName}_verification_certificate.pdf`
       : "verification_certificate.pdf";
     doc.save(fileName);
   };
@@ -350,7 +428,7 @@ const handleDownloadPdf = (user) => {
   </div>
 
   <div className="col-12 col-md-2 mt-1 mt-md-0">
-    <button onClick={handleDownload}>Excel Download</button>
+    <button onClick={handleDownloadExcel}>Excel Download</button>
   </div>
 </div>
 
@@ -430,7 +508,8 @@ const handleDownloadPdf = (user) => {
           {verifiedUsers
   .filter((user) => {
     // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
+    console.log(user.VerifiedDate)
     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
     let isInDateRange = true;
@@ -470,10 +549,10 @@ const handleDownloadPdf = (user) => {
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.idNumber}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.fullName || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.middleName || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.PanNumber}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.fullName || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.middleName || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [userId, setUserId] = useState(""); // State for userId
   const [password, setPassword] = useState(""); // State for password
+  const [username, setUserName] = useState(""); // State for password
   const [error, setError] = useState(""); // State for error messages
   const [message, setMessage] = useState(""); // State for success messages
   // const [clickedFields, setClickedFields] = useState({
@@ -17,7 +18,7 @@ const LoginPage = () => {
   //   password: false,
   // });
   const navigate = useNavigate();
-  const { setRecoveryUserId } = useRecoveryContext(); // Destructure setRecoveryUserId
+  // const { setRecoveryUserId } = useRecoveryContext(); // Destructure setRecoveryUserId
 
   // Handle form submission
   // const handleLogin = async (e) => {
@@ -46,67 +47,96 @@ const LoginPage = () => {
   //     }
   //   }
   // };
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   setMessage("");
+  
+  //   try {
+  //     const response = await axios.post("https://localhost:44334/api/Auth", {
+  //       username,
+  //       password,
+  //     });
+  
+  //     // Log the full response data for debugging
+  //     console.log("Login response:", response.data);
+  
+  //     // Check if the response contains the expected authToken and role
+  //     // if (response.data.authToken && response.data.role) {
+  //       if (response) {
+
+  //       // const { authToken, role } = response.data;
+  //       // setMessage(response.data.message);
+  //       // localStorage.setItem('token', authToken); // Store the authToken in localStorage
+  
+  //       // Redirect based on the role
+  //       // if (role === "admin") {
+  //       //   navigate('/adminDashboard'); // Redirect to admin dashboard
+  //       // } else if (role === "user") {
+  //       //   navigate('/dashboard'); // Redirect to user dashboard
+  //       // }
+  //     } else {
+  //       setError("Login failed. No token or role received.");
+  //     }
+  //   } catch (err) {
+  //     if (err.response && err.response.data) {
+  //       setError(err.response.data.error || "Something went wrong!");
+  //     } else {
+  //       setError("Server not reachable.");
+  //     }
+  //   }
+  // };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setMessage("");
   
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/banklogin", {
-        userId,
+      const response = await axios.post("http://localhost/DocVerification/api/Auth", {
+        username,
         password,
       });
   
-      // Log the full response data for debugging
       console.log("Login response:", response.data);
   
-      // Check if the response contains the expected authToken and role
-      if (response.data.authToken && response.data.role) {
-        const { authToken, role } = response.data;
-        setMessage(response.data.message);
-        localStorage.setItem('token', authToken); // Store the authToken in localStorage
-  
-        // Redirect based on the role
-        if (role === "admin") {
-          navigate('/adminDashboard'); // Redirect to admin dashboard
-        } else if (role === "user") {
-          navigate('/dashboard'); // Redirect to user dashboard
-        }
+      if (response.data.result && response.data.result.outcome.outcomeId === 1) {
+        const token = response.data.result.outcome.tokens;
+        localStorage.setItem("token", token);
+        navigate("/dashboard");
       } else {
-        setError("Login failed. No token or role received.");
+        setError(response.data.result?.Outcome?.OutcomeDetail || "Invalid login.");
       }
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.error || "Something went wrong!");
-      } else {
-        setError("Server not reachable.");
-      }
+      console.error("Login error:", err);
+      setError(err.response?.data?.error || "Server not reachable.");
     }
   };
+  
   
 
    // Function to handle password reset
    // Function to handle password reset
-   const handlePasswordReset = async () => {
-    if (userId) {
-      setRecoveryUserId(userId); // Set the recovery userId in the context
+  //  const handlePasswordReset = async () => {
+  //   if (username) {
+  //     setRecoveryUserId(username); // Set the recovery userId in the context
 
-      try {
-        const response = await axios.post("http://localhost:5000/api/auth/send_recovery_email", {
-          userId, // Use userId for password recovery
-        });
+  //     try {
+  //       const response = await axios.post("http://localhost:5000/api/auth/send_recovery_email", {
+  //         username, // Use userId for password recovery
+  //       });
 
-        console.log(response.data);
-        alert("A recovery email has been sent to your email address.");
-        navigate("/otp-verification"); // Navigate to OTP Verification page directly
-      } catch (error) {
-        console.error("Error sending recovery email:", error);
-        alert("Failed to send recovery email. Please try again later.");
-      }
-    } else {
-      alert("Please enter your username to reset the password.");
-    }
-  };
+  //       console.log(response.data);
+  //       alert("A recovery email has been sent to your email address.");
+  //       navigate("/otp-verification"); // Navigate to OTP Verification page directly
+  //     } catch (error) {
+  //       console.error("Error sending recovery email:", error);
+  //       alert("Failed to send recovery email. Please try again later.");
+  //     }
+  //   } else {
+  //     alert("Please enter your username to reset the password.");
+  //   }
+  // };
 
   return (
     <>
@@ -136,8 +166,8 @@ const LoginPage = () => {
                     id="username"
                     className="form-control"
                     placeholder="Username"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)} // Update state on change
+                    value={username}
+                    onChange={(e) => setUserName(e.target.value)} // Update state on change
                     required
                   />
                 </div>
@@ -157,9 +187,9 @@ const LoginPage = () => {
                 </div>
 
                 {/* Forgot Password Link */}
-                <div className="mb-3 text-center">
+                {/* <div className="mb-3 text-center">
                   <a onClick={handlePasswordReset} style={{cursor:'pointer'}} className="text-decoration-none">Forgot Password?</a>
-                </div>
+                </div> */}
 
                 {/* Login Button */}
                 <button type="submit" className="btn btn-success w-100">LOGIN</button>

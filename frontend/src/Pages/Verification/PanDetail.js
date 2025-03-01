@@ -54,9 +54,9 @@ const PanDetail = () => {
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:5000/api/pandetail/verified"
+            "http://localhost/DocVerification/api/PanDetail/GetAll"
           );
-          setVerifiedUsers(response.data); // Set the fetched data into the state
+          setVerifiedUsers(response.data.data); // Set the fetched data into the state
         } catch (error) {
           console.error("Error fetching verified users:", error);
         }
@@ -68,16 +68,19 @@ const PanDetail = () => {
     const handleExcelDownload = () => {
       // Mapping the verified users data to the format required for Excel
       const excelData = verifiedUsers.map((user, index) => ({
-       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-        'Pan No': user.verifiedData.data.idNumber,
-        'First Name': user.verifiedData.data.firstName,
-        'Fathers Name': user.verifiedData.data.middleName,
-        'Last Name': user.verifiedData.data.lastName,
-        'Full Name': user.verifiedData.data.fullName,
-        'PAN Status::': user.verifiedData.data.panStatus,
-        'Category:': user.verifiedData.data.category,
-        'Aadhaar Seeding Status:': user.verifiedData.data.aadhaarSeedingStatus === "NULL" ? "Not Identified" : user.verifiedData?.data?.aadhaarSeedingStatus,
-        'Verification Date': user.formattedDate,
+        "SrNo": index + 1,
+        "Pan No": user.PanNumber || "N/A",
+        "First Name": user.firstName || "N/A",
+        "Fathers Name": user.middleName || "N/A",
+        "Last Name": user.lastName || "N/A",
+        "Full Name": user.fullName || "N/A",
+        "PAN Status": user.panStatus || "N/A",
+        "Category": user.category || "N/A",
+        "Reference Id": user.reference_id || "N/A",
+        "Aadhaar Seeding Status": user.aadhaarSeedingStatus === "NULL" 
+          ? "Not Identified" 
+          : user.aadhaarSeedingStatus || "N/A",
+        "Verification Date": user.VerifiedDate || "N/A",
       }));
     
       // Create a new workbook
@@ -109,11 +112,14 @@ const PanDetail = () => {
 
     try {
       // Sending request to backend API for PAN verification
-      const res = await axios.post('http://localhost:5000/api/pandetail/pandetails_verify', { id_number: idNumber });
+      // const res = await axios.post(`http://localhost/DocVerification/api/PanDetail/VerifyPan?id_number=${idNumber}`);
+
+      const res = await axios.post(`http://localhost/DocVerification/api/PanDetail/VerifyPan?id_number=${idNumber}`);
       
       // Check if response contains status and handle accordingly
       if (res.data.status === 'success') {
         setResponseData(res.data);  // Store the successful response data
+        console.log(res.data)
       } else {
         setError(res.data.message || 'Verification failed. Please try again.');
       }
@@ -153,8 +159,8 @@ const PanDetail = () => {
   
     // Verification Statement
     const verificationText = `This is to Certify that ${
-      responseData.verifiedData?.data?.fullName || "N/A"
-    }, Pan No. ${responseData.verifiedData?.data?.idNumber} are verified from https://www.pan.utiitsl.com/.`;
+      responseData.data?.[0]?.fullName || "N/A"
+    }, Pan No. ${responseData.data?.[0]?.PanNumber} are verified from https://www.pan.utiitsl.com/.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
   
@@ -190,50 +196,60 @@ const PanDetail = () => {
     doc.setFont("helvetica", "bold");
     doc.text("Id Number                        :", contentX + 2, contentY + 15);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.idNumber ? responseData.verifiedData?.data?.idNumber.toString() : "N/A", contentX + 54, contentY + 15);
+    doc.text(responseData.data?.[0]?.PanNumber ? responseData.data?.[0]?.PanNumber.toString() : "N/A", contentX + 54, contentY + 15);
 
     doc.setFont("helvetica", "bold");
     doc.text("First Name                       :", contentX + 2, contentY + 25);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.firstName ? responseData.verifiedData?.data?.firstName.toString() : "N/A", contentX + 54, contentY + 25);
+    doc.text(responseData.data?.[0]?.firstName ? responseData.data?.[0]?.firstName.toString() : "N/A", contentX + 54, contentY + 25);
 
     doc.setFont("helvetica", "bold");
     doc.text("Middle Name                    :", contentX + 2, contentY + 35);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.middleName ? responseData.verifiedData?.data?.middleName.toString() : "N/A", contentX + 54, contentY + 35);
+    doc.text(responseData.data?.[0]?.middleName ? responseData.data?.[0]?.middleName.toString() : "N/A", contentX + 54, contentY + 35);
 
     doc.setFont("helvetica", "bold");
     doc.text("Last Name                        :", contentX + 2, contentY + 45);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.lastName ? responseData.verifiedData?.data?.lastName.toString() : "N/A", contentX + 54, contentY + 45);
+    doc.text(responseData.data?.[0]?.lastName ? responseData.data?.[0]?.lastName.toString() : "N/A", contentX + 54, contentY + 45);
 
     doc.setFont("helvetica", "bold");
     doc.text("Full Name                         :", contentX + 2, contentY + 55);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.fullName ? responseData.verifiedData?.data?.fullName.toString() : "N/A", contentX + 54, contentY + 55);
+    doc.text(responseData.data?.[0]?.fullName ? responseData.data?.[0]?.fullName.toString() : "N/A", contentX + 54, contentY + 55);
 
     doc.setFont("helvetica", "bold");
     doc.text("PAN Status                       :", contentX + 2, contentY + 65);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.panStatus ? responseData.verifiedData?.data?.panStatus.toString() : "N/A", contentX + 54, contentY + 65);
+    doc.text(responseData.data?.[0]?.panStatus ? responseData.data?.[0]?.panStatus.toString() : "N/A", contentX + 54, contentY + 65);
 
     doc.setFont("helvetica", "bold");
     doc.text("Category                           :", contentX + 2, contentY + 75);
     doc.setFont("helvetica", "normal");
-    doc.text(responseData.verifiedData?.data?.category ? responseData.verifiedData?.data?.category.toString() : "N/A", contentX + 54, contentY + 75);
+    doc.text(responseData.data?.[0]?.category ? responseData.data?.[0]?.category.toString() : "N/A", contentX + 54, contentY + 75);
 
     doc.setFont("helvetica", "bold");
     doc.text("Aadhaar Seeding Status :", contentX + 2, contentY + 85);
     doc.setFont("helvetica", "normal");
     doc.text(
-      responseData.verifiedData?.data?.aadhaarSeedingStatus === "NULL"
+      responseData.data?.[0]?.aadhaarSeedingStatus === "NULL"
         ? "Not Identified"
-        : responseData.verifiedData?.data?.aadhaarSeedingStatus
-          ? responseData.verifiedData?.data?.aadhaarSeedingStatus.toString()
+        : responseData.data?.[0]?.aadhaarSeedingStatus
+          ? responseData.data?.[0]?.aadhaarSeedingStatus.toString()
           : "N/A",
       contentX + 54,
       contentY + 85
     );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Reference Id                     :", contentX + 2, contentY + 95);
+    doc.setFont("helvetica", "normal");
+    doc.text(responseData.data?.[0]?.reference_id ? responseData.data?.[0]?.reference_id.toString() : "N/A", contentX + 54, contentY + 95);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Verification Date              :", contentX + 2, contentY + 105);
+    doc.setFont("helvetica", "normal");
+    doc.text(responseData.data?.[0]?.VerifiedDate ? responseData.data?.[0]?.VerifiedDate.toString() : "N/A", contentX + 54, contentY + 105);
       
     
     // Footer with signatures
@@ -257,8 +273,8 @@ const PanDetail = () => {
     doc.text("Verified By : User", 120, 256);
   
     // Save PDF
-    const fileName =responseData.verifiedData?.data?.idNumber
-      ? `${responseData.verifiedData?.data?.fullName}_verification_certificate.pdf`
+    const fileName =responseData.data?.[0]?.PanNumber
+      ? `${responseData.data?.[0]?.fullName}_verification_certificate.pdf`
       : "verification_certificate.pdf";
     doc.save(fileName);
   };
@@ -407,43 +423,49 @@ const PanDetail = () => {
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>Id Number :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.idNumber}
+            {responseData.data?.[0]?.PanNumber || "N/A"}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>First Name :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.firstName}
+              {responseData.data?.[0]?.firstName}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>Middle Name :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.middleName}
+              {responseData.data?.[0]?.middleName}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>Last Name :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.lastName}
+              {responseData.data?.[0]?.lastName}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>Full Name :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.fullName || "N/A"}
+              {responseData.data?.[0]?.fullName || "N/A"}
+            </td>
+          </tr>
+          <tr>
+            <td style={{ fontWeight: "bold", textAlign: "left" }}>Reference Id :</td>
+            <td style={{ textAlign: "left" }}>
+            {responseData.data?.[0]?.reference_id || "N/A"}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>PAN Status :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.panStatus || "N/A"}
+              {responseData.data?.[0]?.panStatus || "N/A"}
             </td>
           </tr>
           <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>Category :</td>
             <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.category || "N/A"}
+              {responseData.data?.[0]?.category || "N/A"}
             </td>
           </tr>
           <tr>
@@ -451,9 +473,15 @@ const PanDetail = () => {
               Aadhaar Seeding Status :
             </td>
             <td style={{ textAlign: "left" }}>
-            {responseData.verifiedData?.data?.aadhaarSeedingStatus === "NULL" ? "Not Identified" : responseData.verifiedData?.data?.aadhaarSeedingStatus}
+            {responseData.data?.[0]?.aadhaarSeedingStatus === "NULL" ? "Not Identified" : responseData.data?.[0]?.aadhaarSeedingStatus}
             </td>
           </tr>
+          {/* <tr>
+            <td style={{ fontWeight: "bold", textAlign: "left" }}>Verification Date :</td>
+            <td style={{ textAlign: "left" }}>
+              {responseData.data?.[0]?.VerifiedDate || "N/A"}
+            </td>
+          </tr> */}
           {/* <tr>
             <td style={{ fontWeight: "bold", textAlign: "left" }}>
               Verification Date :

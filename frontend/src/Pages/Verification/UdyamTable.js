@@ -20,7 +20,7 @@ const UdyamTable = () => {
     // Filter the users based on the date range
     const filteredUsers = verifiedUsers.filter((user) => {
       // Parse `formattedDate` into a JavaScript Date object
-      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const [day, month, year] = user.VerifiedDate.split("-").map(Number);
       const userVerificationDate = new Date(year, month - 1, day); // Create Date object
   
       let isInDateRange = true;
@@ -61,34 +61,39 @@ const UdyamTable = () => {
     // Map the filtered data to match the desired format for Excel export
     const exportData = verifiedUsers.map((user, index) => ({
       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
-    'Udyam No': user.verifiedData.data.enterprise_data.document_id,
-    'Enterprise Name': user.verifiedData.data.enterprise_data.name,
-    'Major Activity': user.verifiedData.data.enterprise_data.major_activity,
-    'Enterprise Type': user.verifiedData.data.enterprise_data.enterprise_type,
-    'Organization Type': user.verifiedData.data.enterprise_data.organization_type ,
-    'Mobile': user.verifiedData.data.enterprise_data.mobile,
-    'Email': user.verifiedData.data.enterprise_data.email,
-    'Address': [
-      user?.verifiedData?.data?.enterprise_data?.address?.door_no,
-      user?.verifiedData?.data?.enterprise_data?.address?.building,
-      user?.verifiedData?.data?.enterprise_data?.address?.area,
-      user?.verifiedData?.data?.enterprise_data?.address?.block,
-      user?.verifiedData?.data?.enterprise_data?.address?.street,
-      user?.verifiedData?.data?.enterprise_data?.address?.city,
-      user?.verifiedData?.data?.enterprise_data?.address?.district,
-      user?.verifiedData?.data?.enterprise_data?.address?.state,
-      user?.verifiedData?.data?.enterprise_data?.address?.pincode,
+    'Udyam No': user.document_id,
+    'Reference ID': user.reference_id,
+    'Enterprise Name': user.name,
+    'Major Activity': user.major_activity,
+    'Enterprise Type': user.enterprise_type,
+    'Organization Type': user.organization_type ,
+    'Enterprise Mobile': user.mobile,
+    'Enterprise Email': user.email,
+    'Enterprise Address': [
+      user?.e_door_no,
+      user?.e_building,
+      user?.e_area,
+      user?.e_block,
+      user?.e_street,
+      user?.e_city,
+      user?.e_district,
+      user?.e_state,
+      user?.e_pincode,
     ]
       .filter(Boolean) // Exclude undefined or null values
       .join(", ") || "No Address Available", // Concatenated address      'Date of Registration': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
-      'Udyam Registration Date': user.verifiedData.data.enterprise_data.date_of_udyam_registration,
-      'MSME DI': user.verifiedData.data.enterprise_data.msme_di,
-      'DIC': user.verifiedData.data.enterprise_data.dic,
-      'Date of Incorporation': user.verifiedData.data.enterprise_data.date_of_incorporation,
-      'Social Category': user.verifiedData.data.enterprise_data.social_category,
+      'Udyam Registration Date': user.date_of_udyam_registration,
+      'MSME DI': user.msme_di,
+      'DIC': user.dic,
+      'Date of Incorporation': user.date_of_incorporation,
+      'Date of Commencement': user.date_of_commencement      ,
+      'Social Category': user.social_category,
+      'Nic Data 2 Digit': user.nic_2_digit,
+      'Nic Data 4 Digit': user.nic_4_digit,
+      'Nic Data 5 Digit': user.nic_5_digit,
       // 'Enterprise Units': user.verifiedData.data.enterprise_data.enterprise_units.map(unit => unit.name).join(", "),
         
-    'Verification Date': user.formattedDate,
+    'Verification Date': user.VerifiedDate,
     }));
   
     // Prepare data for Excel
@@ -105,9 +110,9 @@ const UdyamTable = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/udyam/verified"
+          "http://localhost/DocVerification/api/UdyamAadhaar/GetAll"
         );
-        setVerifiedUsers(response.data); // Set the fetched data into the state
+        setVerifiedUsers(response.data.data); // Set the fetched data into the state
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -197,122 +202,226 @@ const UdyamTable = () => {
 //     // Save the PDF
 //     doc.save(`${user.verifiedData?.data?.full_name}_aadhaar_verification.pdf`);
 //   };
-
 const handleDownloadPdf = (user) => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-    // Add a full-page border
-    doc.setDrawColor(0); // Black color
-    doc.setLineWidth(0.7); // Border thickness
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+  // Add a full-page border
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.7);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-    // Center-aligned title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(25);
-    const title = "Shankar Nagari Sahakari Bank Ltd";
-    doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  const title = "Shankar Nagari Sahakari Bank Ltd";
+  doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
 
-    // Center-aligned subtitle
-    doc.setFontSize(14);
-    const subtitle = "Udyam Aadhaar Verification Certificate";
-    doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+  // Subtitle
+  doc.setFontSize(14);
+  const subtitle = "Udyam Aadhaar Verification Certificate";
+  doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
 
-    // Center-aligned section header
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    const header = "TO WHOMSOEVER IT MAY CONCERN";
-    doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+  // Section Header
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  const header = "TO WHOMSOEVER IT MAY CONCERN";
+  doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
 
-    // Verification Statement
-    const verificationText = `This is to Certify that ${
-     user.verifiedData.data.enterprise_data.name || "N/A"
-    }, Udyam Id No. ${user.verifiedData.data.enterprise_data.document_id} is verified from the Udyam portal.`;
-    const verificationSplit = doc.splitTextToSize(verificationText, 180);
-    doc.text(verificationSplit, 14, 50);
+  // Verification Statement
+  const verificationText = `This is to Certify that ${
+      user.name || "N/A"
+  }, Udyam Id No. ${user.document_id} is verified from the Udyam portal.`;
+  const verificationSplit = doc.splitTextToSize(verificationText, 180);
+  doc.text(verificationSplit, 14, 50);
 
-    // Define positions and dimensions for the outer border
-    const outerX = 10;
-    const outerY = 62;
-    const outerWidth = 190;
-    const outerHeight = 173;  // Increased to fit all the new data
+  // Outer Border
+  const outerX = 10;
+  const outerY = 62;
+  const outerWidth = 190;
+  const outerHeight = 170; // Increased height for better spacing
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.7);
+  doc.rect(outerX, outerY, outerWidth, outerHeight);
 
-    // Draw the outer border
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.7);
-    doc.rect(outerX, outerY, outerWidth, outerHeight);
+  // User Details
+  const contentX = 14;
+  let yOffset = 70;
 
-    // Define positions and dimensions for content box
-    const contentX = 14;
-    const contentY = 70;
-    const contentWidth = 120;
-    const contentHeight = 90;
+  const nicData = user || {};
+  const processNicData = (label, value) => {
+      if (!value) return `${label}: N/A`;
+      return value.length > 5 ? `${label}: ${value.slice(0, 5)}\n${value.slice(5)}` : `${label}: ${value}`;
+  };
 
-    // User Details Content inside the rectangle
-    const userDetails = [
-      { label: "Enterprise Name", value:user.verifiedData.data.enterprise_data.name },
-      { label: "Document ID", value:user.verifiedData.data.enterprise_data.document_id },
-      { label: "Major Activity", value:user.verifiedData.data.enterprise_data.major_activity },
-      { label: "Enterprise Type", value:user.verifiedData.data.enterprise_data.enterprise_type },
-      { label: "Organization Type", value:user.verifiedData.data.enterprise_data.organization_type },
-      { label: "Mobile", value:user.verifiedData.data.enterprise_data.mobile },
-      { label: "Email", value:user.verifiedData.data.enterprise_data.email },
-      { label: "Address", value: `${user.verifiedData.data.enterprise_data.address.street}, ${user.verifiedData.data.enterprise_data.address.city}, ${user.verifiedData.data.enterprise_data.address.state}` },
-      { label: "Udyam Registration Date", value:user.verifiedData.data.enterprise_data.date_of_udyam_registration },
-      { label: "MSME DI", value:user.verifiedData.data.enterprise_data.msme_di },
-      { label: "DIC", value:user.verifiedData.data.enterprise_data.dic },
-      { label: "Date of Incorporation", value:user.verifiedData.data.enterprise_data.date_of_incorporation },
-      { label: "Social Category", value:user.verifiedData.data.enterprise_data.social_category },
-      { label: "Enterprise Units", value:user.verifiedData.data.enterprise_units.map(unit => unit.name).join(", ") }
-    ];
+  const userDetails = [
+      { label: "Enterprise Name", value: nicData.name },
+      { label: "Reference ID", value: nicData.reference_id },
+      { label: "Document ID", value: nicData.document_id },
+      { label: "Major Activity", value: nicData.major_activity },
+      { label: "Enterprise Type", value: nicData.enterprise_type },
+      { label: "Organization Type", value: nicData.organization_type },
+      { label: "Enterprise Mobile", value: nicData.mobile },
+      { label: "Enterprise Email", value: nicData.email },
+      { label: "Enterprise Address", value: `${nicData.e_door_no},${nicData.e_building},${nicData.e_area},${nicData.e_street},, ${nicData.e_city}, ${nicData.e_state},${nicData.e_pincode}` },
+      { label: "Udyam Registration Date", value: nicData.date_of_udyam_registration },
+      { label: "MSME DI", value: nicData.msme_di },
+      { label: "DIC", value: nicData.dic },
+      { label: "Date of Incorporation", value: nicData.date_of_incorporation },
+      { label: "Social Category", value: nicData.social_category },
+      { label: "Nic Data 2 Digit", value: processNicData("NIC Data 2 Digit", nicData.nic_2_digit) },
+      { label: "Nic Data 4 Digit", value: processNicData("NIC Data 4 Digit", nicData.nic_4_digit) },
+      { label: "Nic Data 5 Digit", value: processNicData("NIC Data 5 Digit", nicData.nic_5_digit) },
+      { label: "Verification Date", value: nicData.VerifiedDate },
+  ];
 
-    // NIC Code: Handle long text and wrap it appropriately
-    const nicCode = `${user.verifiedData.data.nic_data.nic_2_digit} - ${user.verifiedData.data.nic_data.nic_4_digit} - ${user.verifiedData.data.nic_data.nic_5_digit}`;
-    const nicCodeSplit = doc.splitTextToSize(nicCode, 130);  // Split if necessary to avoid overflow
-
-    doc.setFont("helvetica", "bold");
-    let yOffset = contentY;
-
-    userDetails.forEach(item => {
-      doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+  doc.setFont("helvetica", "bold");
+  userDetails.forEach(item => {
+      doc.text(`${item.label} :`, contentX + 2, yOffset);
       doc.setFont("helvetica", "normal");
-      doc.text(item.value || "N/A", contentX + 54, yOffset + 3);
-      yOffset += 10; // Adjust the Y offset for the next line
-    });
 
-    // Add NIC Code below the user details
-    doc.setFont("helvetica", "bold");
-    doc.text("NIC Code:", contentX + 2, yOffset + 3);  // NIC label
-    doc.setFont("helvetica", "normal");
-    doc.text(nicCodeSplit, contentX + 54, yOffset + 3);  // NIC details
+      // Handle line breaking for NIC Data
+      const splitText = doc.splitTextToSize(item.value, 120);
+      doc.text(splitText, contentX + 54, yOffset);
 
-    yOffset += nicCodeSplit.length * 5; // Adjust for the multiline NIC text
+      yOffset += splitText.length * 7; // Increased line height spacing
+  });
 
-    // Footer with signatures
-    doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 245);
-    doc.text("Signature of the Branch Manager", 110, 245);
+  // Footer with Signatures
+  doc.setFont("helvetica", "bold");
+  doc.text("Signature of the Authorised Signatory", 14, 246);
+  doc.text("Signature of the Branch Manager", 110, 246);
+  doc.setFont("helvetica", "normal");
+  doc.text("Name: __________________", 14, 255);
+  doc.text("Name: __________________", 110, 255);
+  doc.text("Designation: ____________", 14, 265);
+  doc.text("Designation: ____________", 110, 265);
+  doc.text("Phone no.: ______________", 14, 275);
+  doc.text("Date: ___________________", 110, 275);
+  doc.text("(Bank Seal)", 14, 288);
+  doc.text("Verified By : User", 120, 288);
 
-    doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 255);
-    doc.text("Name: __________________", 110, 255);
-
-    doc.text("Designation: ____________", 14, 265);
-    doc.text("Designation: ____________", 110, 265);
-
-    doc.text("Phone no.: ______________", 14, 275);
-    doc.text("Date: ___________________", 110, 275);
-
-    // Bank Seal
-    doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 288);
-    doc.text("Verified By : User", 120, 288);
-
-    // Save PDF
-    const fileName = `${user.verifiedData.data.enterprise_data.name}_verification_certificate.pdf`;
-    doc.save(fileName);
+  // Save PDF
+  const fileName = `${nicData.name || "User"}_verification_certificate.pdf`;
+  doc.save(fileName);
 };
+
+// const handleDownloadPdf = (user) => {
+//     const doc = new jsPDF();
+//     const pageWidth = doc.internal.pageSize.getWidth();
+//     const pageHeight = doc.internal.pageSize.getHeight();
+
+//     // Add a full-page border
+//     doc.setDrawColor(0); // Black color
+//     doc.setLineWidth(0.7); // Border thickness
+//     doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+
+//     // Center-aligned title
+//     doc.setFont("helvetica", "bold");
+//     doc.setFontSize(25);
+//     const title = "Shankar Nagari Sahakari Bank Ltd";
+//     doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+
+//     // Center-aligned subtitle
+//     doc.setFontSize(14);
+//     const subtitle = "Udyam Aadhaar Verification Certificate";
+//     doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+
+//     // Center-aligned section header
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "normal");
+//     const header = "TO WHOMSOEVER IT MAY CONCERN";
+//     doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+
+//     // Verification Statement
+//     const verificationText = `This is to Certify that ${
+//      user.name || "N/A"
+//     }, Udyam Id No. ${user.document_id} is verified from the Udyam portal.`;
+//     const verificationSplit = doc.splitTextToSize(verificationText, 180);
+//     doc.text(verificationSplit, 14, 50);
+
+//     // Define positions and dimensions for the outer border
+//     const outerX = 10;
+//     const outerY = 62;
+//     const outerWidth = 190;
+//     const outerHeight = 173;  // Increased to fit all the new data
+
+//     // Draw the outer border
+//     doc.setDrawColor(0);
+//     doc.setLineWidth(0.7);
+//     doc.rect(outerX, outerY, outerWidth, outerHeight);
+
+//     // Define positions and dimensions for content box
+//     const contentX = 14;
+//     const contentY = 70;
+//     const contentWidth = 120;
+//     const contentHeight = 90;
+
+//     // User Details Content inside the rectangle
+//     const userDetails = [
+//       { label: "Enterprise Name", value:user.name },
+//       { label: "Document ID", value:user.document_id },
+//       { label: "Major Activity", value:user.major_activity },
+//       { label: "Enterprise Type", value:user.enterprise_type },
+//       { label: "Organization Type", value:user.organization_type },
+//       { label: "Enterprise Mobile", value:user.mobile },
+//       { label: "Enterprise Email", value:user.email },
+//       { label: "Enterprise Address", value: `${user.e_street}, ${user.e_city}, ${user.e_state}` },
+//       { label: "Udyam Registration Date", value:user.date_of_udyam_registration },
+//       { label: "MSME DI", value:user.msme_di },
+//       { label: "DIC", value:user.dic },
+//       { label: "Date of Incorporation", value:user.date_of_incorporation },
+//       { label: "Social Category", value:user.social_category },
+//       // { label: "Enterprise Units", value:user.verifiedData.data.enterprise_units.map(unit => unit.name).join(", ") }
+//     ];
+
+//     // NIC Code: Handle long text and wrap it appropriately
+//     const nicCode = `${user.nic_2_digit} - ${user.nic_4_digit} - ${user.nic_5_digit}`;
+//     const nicCodeSplit = doc.splitTextToSize(nicCode, 130);  // Split if necessary to avoid overflow
+
+//     doc.setFont("helvetica", "bold");
+//     let yOffset = contentY;
+
+//     userDetails.forEach(item => {
+//       doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+//       doc.setFont("helvetica", "normal");
+//       doc.text(item.value || "N/A", contentX + 54, yOffset + 3);
+//       yOffset += 10; // Adjust the Y offset for the next line
+//     });
+
+//     // Add NIC Code below the user details
+//     doc.setFont("helvetica", "bold");
+//     doc.text("NIC Code:", contentX + 2, yOffset + 3);  // NIC label
+//     doc.setFont("helvetica", "normal");
+//     doc.text(nicCodeSplit, contentX + 54, yOffset + 3);  // NIC details
+
+//     yOffset += nicCodeSplit.length * 5; // Adjust for the multiline NIC text
+
+//     // Footer with signatures
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Signature of the Authorised Signatory", 14, 245);
+//     doc.text("Signature of the Branch Manager", 110, 245);
+
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Name: __________________", 14, 255);
+//     doc.text("Name: __________________", 110, 255);
+
+//     doc.text("Designation: ____________", 14, 265);
+//     doc.text("Designation: ____________", 110, 265);
+
+//     doc.text("Phone no.: ______________", 14, 275);
+//     doc.text("Date: ___________________", 110, 275);
+
+//     // Bank Seal
+//     doc.setFont("helvetica", "normal");
+//     doc.text("(Bank Seal)", 14, 288);
+//     doc.text("Verified By : User", 120, 288);
+
+//     // Save PDF
+//     const fileName = `${user.name}_verification_certificate.pdf`;
+//     doc.save(fileName);
+// };
 
   
   
@@ -458,7 +567,7 @@ const handleDownloadPdf = (user) => {
           {verifiedUsers
   .filter((user) => {
     // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
     const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
     let isInDateRange = true;
@@ -497,13 +606,13 @@ const handleDownloadPdf = (user) => {
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.document_id}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.name || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.email || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.major_activity || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}> {user?.verifiedData?.data?.enterprise_data?.address?.door_no}, {user?.verifiedData?.data?.enterprise_data?.address?.building}, {user?.verifiedData?.data?.enterprise_data?.address?.area}, {user?.verifiedData?.data?.enterprise_data?.address?.city}, {user?.verifiedData?.data?.enterprise_data?.address?.state} - {user?.verifiedData?.data?.enterprise_data?.address?.pincode}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.date_of_udyam_registration || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.document_id}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.name || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.email || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.major_activity || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}> {user?.e_door_no}, {user?.e_building}, {user?.e_area}, {user?.e_city}, {user?.e_state} - {user?.e_pincode}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.date_of_udyam_registration || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button
