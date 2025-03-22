@@ -24,6 +24,17 @@ import UserCreate from "../Pages/Verification/UserCreate";
 import AdminDashboard from "../Pages/Verification/AdminDashboard";
 import AshADmin from "../Layout/AshADmin";
 import PasswordChange from "../NewDash/PasswordChange";
+import BranchMaster from "../Pages/Authentication/BranchMaster";
+import RoleMaster from "../Pages/Authentication/RoleMaster";
+import UserCreated from "../Pages/Authentication/UserCreated";
+import AdminBankCreate from "../Pages/Authentication/AdminBankCreate";
+import BankCreditAdd from "../Pages/Authentication/BankCreditAdd";
+import Activation from "../Pages/Authentication/Activation";
+import BankPasswordChange from "../Pages/Authentication/BankPasswordChange";
+import UserEnabDis from "../Pages/Authentication/UserEnabDis";
+import ClientEnableDis from "../Pages/Authentication/BankEnableDis";
+import ApiCredits from "../Pages/Authentication/ApiCredits";
+import AvsAdmin from "../Pages/Authentication/AvsAdmin";
 
 const RouteApp = () => {
   return (
@@ -36,6 +47,17 @@ const RouteApp = () => {
           <Route path="/otp-verification" element={<OTPVerification />} />
           <Route path="/logout" element={<Logout/>} />
           <Route path="/user" element={<UserProfile/>} />
+          <Route path="/master" element={<BranchMaster/>} />
+          <Route path="/rolemaster" element={<RoleMaster/>} />
+          <Route path="/usercreated" element={<UserCreated/>} />
+          <Route path="/adminbank" element={<AdminBankCreate/>} />
+          <Route path="/bankCredit" element={<BankCreditAdd/>} />
+          <Route path="/activate" element={<Activation/>} />
+          <Route path="/passchange" element={<BankPasswordChange/>} />
+          <Route path="/userenabdis" element={<UserEnabDis/>} />
+          <Route path="/clientenabdis" element={<ClientEnableDis/>} />
+          <Route path="/apicredits" element={<ApiCredits/>} />
+          <Route path="/avsAdmin" element={<AvsAdmin/>} />
           {/* <Route path="/adminDashboard" element={<AdminDashboard/>} /> */}
           <Route path="/dashboard" element={<Dashboard />}>
               <Route index element={<Cont/>} /> 

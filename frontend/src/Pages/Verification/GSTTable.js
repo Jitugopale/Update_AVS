@@ -91,26 +91,26 @@ const GSTTable = () => {
     XLSX.writeFile(workbook, 'filtered-users.xlsx');
   };
 
-  useEffect(() => {
-    const fetchVerifiedUsers = async () => {
-      try {
-        const response = await axios.get("http://localhost/DocVerification/api/GST/GetAll");
+  // useEffect(() => {
+  //   const fetchVerifiedUsers = async () => {
+  //     try {
+  //       const response = await axios.get("https://192.168.20.150:82/Document_Verify_Back/api/GST/GetAll");
   
-        // Ensure 'data' is properly parsed
-        const parsedUsers = response.data.data.map(user => ({
-          ...user,
-          data: JSON.parse(user.data) // Convert string to JSON object
-        }));
+  //       // Ensure 'data' is properly parsed
+  //       const parsedUsers = response.data.data.map(user => ({
+  //         ...user,
+  //         data: JSON.parse(user.data) // Convert string to JSON object
+  //       }));
   
-        setVerifiedUsers(parsedUsers); // Store parsed data in state
-        // console.log(parsedUsers); // Debugging output
-      } catch (error) {
-        console.error("Error fetching verified users:", error);
-      }
-    };
+  //       setVerifiedUsers(parsedUsers); // Store parsed data in state
+  //       // console.log(parsedUsers); // Debugging output
+  //     } catch (error) {
+  //       console.error("Error fetching verified users:", error);
+  //     }
+  //   };
   
-    fetchVerifiedUsers();
-  }, []);
+  //   fetchVerifiedUsers();
+  // }, []);
   
 
 
@@ -928,7 +928,40 @@ const handleDownloadPdf = (user) => {
 
   doc.save(fileName);
 };
+useEffect(() => {
+  const authenticateAndFetchUsers = async () => {
+    try {
+      // Step 1: Authenticate and get JWT token
+      const authResponse = await axios.post("https://localhost:7057/api/auth/authenticateUser", {
+        userId: 0,
+        fullName: "string",
+        userName: "string",
+        phoneNo: "string",
+        userEmail: "string",
+        role: "string"
+      });
 
+      if (authResponse.data.success) {
+        const token = authResponse.data.access_token;
+
+        // Step 2: Fetch verified users with JWT token
+        const response = await axios.get("https://localhost:7057/api/verification/getallGst", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        setVerifiedUsers(response.data.gstlist);
+        console.log("Verified Users PanDetails:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching verified users:", error);
+    }
+  };
+
+  authenticateAndFetchUsers();
+}, []);
   
 
   return (
@@ -1102,12 +1135,12 @@ const handleDownloadPdf = (user) => {
           {index + 1}
         </td>
 
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.gstin}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.pan_number || "not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.business_name || "not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.date_of_registration || "not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.gstin_status || "not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.data.VerifiedDate || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.gstin}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.pan_number || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.business_name || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.date_of_registration || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.gstin_status || "not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedDate || "not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

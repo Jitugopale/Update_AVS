@@ -83,7 +83,7 @@ const PassportVerification = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost/DocVerification/api/Passport/GetAll"
+          "https://192.168.20.150:82/Document_Verify_Back/api/Passport/GetAll"
         );
         setVerifiedUsers(response.data.data); // Set the fetched data into the state
       } catch (error) {
@@ -105,7 +105,7 @@ const PassportVerification = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post(`http://localhost/DocVerification/api/Passport/VerifyPassport?id_number=${idNumber}&dob=${dob}`);
+      const res = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/Passport/VerifyPassport?id_number=${idNumber}&dob=${dob}`);
       if (res.data.status === 'success') {
         setResponseData(res.data);
         console.log(res.data)

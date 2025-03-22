@@ -333,9 +333,9 @@ const Slide = () => {
           <li>
             <Link to="#">Complaint</Link>
           </li> */}
-          <li style={{marginLeft:'70px'}} className='mt-2'>
+          {/* <li style={{marginLeft:'70px'}} className='mt-2'>
             <Logout/>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </>

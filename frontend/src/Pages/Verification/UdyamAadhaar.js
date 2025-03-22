@@ -31,7 +31,7 @@ const UdyamAadhaar = () => {
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost/DocVerification/api/UdyamAadhaar/GetAll"
+            "https://192.168.20.150:82/Document_Verify_Back/api/UdyamAadhaar/GetAll"
           );
           setVerifiedUsers(response.data.data); // Set the fetched data into the state
         } catch (error) {
@@ -129,7 +129,7 @@ const UdyamAadhaar = () => {
 
     try {
       // API call to your backend with the correct variable name in the payload
-      const res = await axios.post(`http://localhost/DocVerification/api/UdyamAadhaar/VerifyUdyamAdhar?udyam_aadhaar=${udyamAadhaar}`);
+      const res = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/UdyamAadhaar/VerifyUdyamAdhar?udyam_aadhaar=${udyamAadhaar}`);
       setResponseData(res.data);  // Store the response data in state
       console.log(res.data)
     } catch (err) {

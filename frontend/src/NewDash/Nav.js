@@ -2,6 +2,7 @@ import React from "react";
 import Logout from "../Pages/Authentication/Logout";
 import UserProfile from "../Pages/Authentication/UserProfile";
 import axios from "axios";
+import bank from '../Pages/Authentication/images/bankImg.png'
 import { useState, useEffect } from "react";
 
 const Nav = () => {
@@ -99,6 +100,36 @@ const Nav = () => {
     <>
       <style>
         {`
+    
+
+        @media (max-width: 992px) {
+  .navbar .d-flex {
+    width: 90%;
+    justify-content: flex-start; /* Align items to the left */
+  } 
+
+  #sidebarCollapse {
+    margin-left: 50px; /* Add space between image and menu */
+  }
+}
+
+            @media (max-width: 576px) {
+                  .navbar .d-flex {
+    width: 100%;
+    justify-content: flex-start; /* Align items to the left */
+  } 
+
+        }
+
+     
+
+
+         @media (max-width: 576px) {
+                  .displayy {
+    display: none;
+  } 
+
+        }
     @media (max-width: 576px) {
       .hidden-on-mobile, .logout-container {
         display: none;
@@ -109,6 +140,7 @@ const Nav = () => {
       .btn-info{
       max-height: 40px
       }
+      
     }
   `}
       </style>
@@ -160,27 +192,33 @@ const Nav = () => {
       </nav> */}
 
       <nav className="container-fluid navbar navbar-expand-lg navbar-light bg-light height">
+        <div>
+        {/* <h2
+          value={bankName}
+        >Demo Bank</h2> */}
+        <img className="displayy" src={bank} style={{maxWidth:'240px', height:'40px', borderRadius:'15px', border:'2px solid black'}}></img>
+        </div>
         <div className="d-flex">
-          <button type="button" id="sidebarCollapse" className="btn btn-info" style={{height:'40px'}}>
+          <button type="button" id="sidebarCollapse" className="btn btn-info leftt" style={{height:'40px',marginLeft:'20px'}}>
             <i className="fas fa-align-left" />
             <i className="bx bx-menu"></i>
         </button>
         <div>
           <ul className="navbar-nav">
-            <li className="nav-item active">
+            {/* <li className="nav-item active">
               <a className="navbar-brand" href="#">
                 {bankName}
               </a>
-            </li>
-            <li className="nav-item hidden-on-mobile">
+            </li> */}
+            {/* <li className="nav-item hidden-on-mobile">
               <a className="nav-link mt-2 text" href="#">
                 Onboarding Solution
               </a>
-            </li>
-            <li className="nav-item hidden-on-mobile" style={{marginLeft:'820px',marginTop:'10px'}}>
+            </li> */}
+            {/* <li className="nav-item hidden-on-mobile" style={{marginLeft:'820px',marginTop:'10px'}}>
               <Logout/>
-            </li>
-            <li className="nav-item hidden-on-mobile">
+            </li> */}
+            <li className="nav-item">
               <UserProfile/>
             </li>
           </ul>

@@ -106,19 +106,53 @@ const UdyamTable = () => {
   };
 
   // Fetch the verified users from the backend
+  // useEffect(() => {
+  //   const fetchVerifiedUsers = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://192.168.20.150:82/Document_Verify_Back/api/UdyamAadhaar/GetAll"
+  //       );
+  //       setVerifiedUsers(response.data.data); // Set the fetched data into the state
+  //     } catch (error) {
+  //       console.error("Error fetching verified users:", error);
+  //     }
+  //   };
+  //   fetchVerifiedUsers();
+  // },[]);
   useEffect(() => {
-    const fetchVerifiedUsers = async () => {
+    const authenticateAndFetchUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost/DocVerification/api/UdyamAadhaar/GetAll"
-        );
-        setVerifiedUsers(response.data.data); // Set the fetched data into the state
+        // Step 1: Authenticate and get JWT token
+        const authResponse = await axios.post("https://localhost:7057/api/auth/authenticateUser", {
+          userId: 0,
+          fullName: "string",
+          userName: "string",
+          phoneNo: "string",
+          userEmail: "string",
+          role: "string"
+        });
+
+        if (authResponse.data.success) {
+          const token = authResponse.data.access_token;
+
+          // Step 2: Fetch verified users with JWT token
+          const response = await axios.get("https://localhost:7057/api/verification/getallUdyam", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+
+          setVerifiedUsers(response.data.udyamlist);
+          console.log("Verified Users PanDetails:", response.data);
+        }
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
     };
-    fetchVerifiedUsers();
-  },[]);
+
+    authenticateAndFetchUsers();
+  }, []);
 
 
   
@@ -565,40 +599,40 @@ const handleDownloadPdf = (user) => {
           </thead>
           <tbody>
           {verifiedUsers
-  .filter((user) => {
-    // Parse `formattedDate` into a JavaScript Date object
-    const [day, month, year] = user.VerifiedDate.split("-").map(Number);
-    const userVerificationDate = new Date(year, month - 1, day); // Create Date object
+  // .filter((user) => {
+  //   // Parse `formattedDate` into a JavaScript Date object
+  //   const [day, month, year] = user.VerifiedDate.split("-").map(Number);
+  //   const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
-    let isInDateRange = true;
+  //   let isInDateRange = true;
 
-    // Parse startDate and endDate from the input fields
-    const startDateObj = startDate ? new Date(startDate) : null;
-    let endDateObj = endDate ? new Date(endDate) : null;
+  //   // Parse startDate and endDate from the input fields
+  //   const startDateObj = startDate ? new Date(startDate) : null;
+  //   let endDateObj = endDate ? new Date(endDate) : null;
 
-    // Adjust endDate to include the full day
-    if (endDateObj) {
-      endDateObj.setHours(23, 59, 59, 999);
-    }
+  //   // Adjust endDate to include the full day
+  //   if (endDateObj) {
+  //     endDateObj.setHours(23, 59, 59, 999);
+  //   }
 
-     // Include users with a `formattedDate` equal to `startDate`
-     if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
-      return true;
-    }
+  //    // Include users with a `formattedDate` equal to `startDate`
+  //    if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+  //     return true;
+  //   }
 
-    // Handle case where startDate equals endDate (specific day filtering)
-    if (startDate && endDate && startDate === endDate) {
-      isInDateRange =
-        userVerificationDate.toDateString() === startDateObj.toDateString();
-    } else {
-      // General range filtering
-      isInDateRange =
-        (!startDateObj || userVerificationDate >= startDateObj) &&
-        (!endDateObj || userVerificationDate <= endDateObj);
-    }
+  //   // Handle case where startDate equals endDate (specific day filtering)
+  //   if (startDate && endDate && startDate === endDate) {
+  //     isInDateRange =
+  //       userVerificationDate.toDateString() === startDateObj.toDateString();
+  //   } else {
+  //     // General range filtering
+  //     isInDateRange =
+  //       (!startDateObj || userVerificationDate >= startDateObj) &&
+  //       (!endDateObj || userVerificationDate <= endDateObj);
+  //   }
 
-    return isInDateRange;
-  })
+  //   return isInDateRange;
+  // })
 
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
@@ -612,7 +646,7 @@ const handleDownloadPdf = (user) => {
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.major_activity || "DOB not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}> {user?.e_door_no}, {user?.e_building}, {user?.e_area}, {user?.e_city}, {user?.e_state} - {user?.e_pincode}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.date_of_udyam_registration || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.VerifiedDate || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedDate || "DOB not available"}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button

@@ -60,7 +60,7 @@ const PancardVerificationPage = ({
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost/DocVerification/api/Pan/GetAll"
+          "https://192.168.20.150:82/Document_Verify_Back/api/Pan/GetAll"
         );
         setVerifiedUsers(response.data.data); // Set the fetched data into the state
         console.log(response.data.data)
@@ -101,7 +101,7 @@ const PancardVerificationPage = ({
     setError(null); // Clear any previous errors
 
     try {
-      const response = await axios.post(`http://localhost/DocVerification/api/Pan/VerifyPan?pannumber=${pannumber}`);
+      const response = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/Pan/VerifyPan?pannumber=${pannumber}`);
       setVerificationResult(response.data);
       console.log(response.data)
       setSuccessMessage("PAN Card verified successfully!");

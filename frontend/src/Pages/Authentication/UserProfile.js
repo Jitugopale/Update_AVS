@@ -216,19 +216,47 @@ const styles = {
   },
 };
 
+// const modalStyles = {
+//   content: {
+//     top: '50%',
+//     left: '50%',
+//     right: 'auto',
+//     bottom: 'auto',
+//     transform: 'translate(-50%, -50%)',
+//     padding: '20px',
+//     width: '400px',
+//     backgroundColor: '#fff', // Set a background color
+//     borderRadius: '10px',
+//     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
+//   },
+// };
+
+
 const modalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
+    position: 'fixed', // Ensure it's properly centered
+    top: '20%',
+    left: '85%',
     right: 'auto',
     bottom: 'auto',
     transform: 'translate(-50%, -50%)',
     padding: '20px',
     width: '400px',
-    backgroundColor: '#fff', // Set a background color
+    backgroundColor: '#fff',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
+    zIndex: 1050, // Ensure it appears above other elements
+  },
+  overlay: {
+    position: 'fixed', // Ensures it covers the entire screen
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Dim background
+    zIndex: 1040,
   },
 };
+
 
 export default UserProfile;

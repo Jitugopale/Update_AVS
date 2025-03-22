@@ -31,7 +31,7 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost/DocVerification/api/Voter/GetAll"
+            "https://192.168.20.150:82/Document_Verify_Back/api/Voter/GetAll"
           );
           setVerifiedUsers(response.data.data); // Set the fetched data into the state
         } catch (error) {
@@ -118,7 +118,7 @@ const [verifiedUsers, setVerifiedUsers] = useState([]);
 
     try {
       const res = await axios.post(
-        `http://localhost/DocVerification/api/Voter/VerifyVoterId?id_number=${idNumber}`,
+        `https://192.168.20.150:82/Document_Verify_Back/api/Voter/VerifyVoterId?id_number=${idNumber}`,
         { id_number: idNumber }
       );
       if (res.data.status === "success") {

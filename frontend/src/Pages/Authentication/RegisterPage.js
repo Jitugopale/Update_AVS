@@ -88,7 +88,7 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost/DocVerification/api/BankRegister", formData);
+      const response = await axios.post("https://192.168.20.150:82/Document_Verify_Back/api/BankRegister", formData);
       console.log(response)
 
       if (response.data.outcome.outcomeId === 1) {

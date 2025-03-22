@@ -54,7 +54,7 @@ const PanDetail = () => {
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost/DocVerification/api/PanDetail/GetAll"
+            "https://192.168.20.150:82/Document_Verify_Back/api/PanDetail/GetAll"
           );
           setVerifiedUsers(response.data.data); // Set the fetched data into the state
         } catch (error) {
@@ -112,9 +112,9 @@ const PanDetail = () => {
 
     try {
       // Sending request to backend API for PAN verification
-      // const res = await axios.post(`http://localhost/DocVerification/api/PanDetail/VerifyPan?id_number=${idNumber}`);
+      // const res = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/PanDetail/VerifyPan?id_number=${idNumber}`);
 
-      const res = await axios.post(`http://localhost/DocVerification/api/PanDetail/VerifyPan?id_number=${idNumber}`);
+      const res = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/PanDetail/VerifyPan?id_number=${idNumber}`);
       
       // Check if response contains status and handle accordingly
       if (res.data.status === 'success') {

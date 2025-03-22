@@ -31,7 +31,7 @@ const GSTVerificationPage = () => {
       const fetchVerifiedUsers = async () => {
         try {
           const response = await axios.get(
-            "http://localhost/DocVerification/api/GST/GetAll"
+            "https://192.168.20.150:82/Document_Verify_Back/api/GST/GetAll"
           );
           setVerifiedUsers(response.data.data); // Set the fetched data into the state
           console.log(response.data.data)
@@ -235,7 +235,7 @@ const GSTVerificationPage = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post(`http://localhost/DocVerification/api/GST/VerifyGST?id_number=${idNumber}`);
+      const res = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/GST/VerifyGST?id_number=${idNumber}`);
 
       if (res.data.status === 'success') {
         setResponseData(res.data);  // Store the successful response data

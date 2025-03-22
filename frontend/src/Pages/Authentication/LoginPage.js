@@ -93,7 +93,7 @@ const LoginPage = () => {
     setMessage("");
   
     try {
-      const response = await axios.post("http://localhost/DocVerification/api/Auth", {
+      const response = await axios.post("http://43.239.110.100/Doc_Verify_Backend/api/Auth", {
         username,
         password,
       });
