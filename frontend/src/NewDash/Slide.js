@@ -13,6 +13,13 @@ const Slide = () => {
       const [BranchisOpen, setBranchIsOpen] = useState(false);
       const [UserisOpen, setUserIsOpen] = useState(false);
       const [PasswordisOpen, setPasswordIsOpen] = useState(false);
+      const [EnableisOpen, setEnableisOpen] = useState(false);
+      const [RoleisOpen, setRoleisOpen] = useState(false);
+      const [BankCreditisOpen, setBankCreditisOpen] = useState(false);
+      const [AVSAdminisOpen, setAVSAdminisOpen] = useState(false);
+      const [AdminBankisOpen, setAVSAdminBankisOpen] = useState(false);
+      const [AddBankCreditisOpen, setAddBankCreditisOpen] = useState(false);
+      const [ActivationisOpen, setActivationisOpen] = useState(false);
        const [user, setUser] = useState(null);
         const [loading, setLoading] = useState(true); // State for loading
         const [error, setError] = useState(null);
@@ -56,6 +63,34 @@ const Slide = () => {
       const togglePasswordSubmenu = (e) => {
         e.preventDefault();
         setPasswordIsOpen((prevState) => !prevState);
+      };
+      const toggleEnableSubmenu = (e) => {
+        e.preventDefault();
+        setEnableisOpen((prevState) => !prevState);
+      };
+      const toggleRoleSubmenu = (e) => {
+        e.preventDefault();
+        setRoleisOpen((prevState) => !prevState);
+      };
+      const toggleBankCreditSubmenu = (e) => {
+        e.preventDefault();
+        setBankCreditisOpen((prevState) => !prevState);
+      };
+      const toggleAVSAdminSubmenu = (e) => {
+        e.preventDefault();
+        setAVSAdminisOpen((prevState) => !prevState);
+      };
+      const toggleAdminBankSubmenu = (e) => {
+        e.preventDefault();
+        setAVSAdminBankisOpen((prevState) => !prevState);
+      };
+      const toggleAddBankCreditSubmenu = (e) => {
+        e.preventDefault();
+        setAddBankCreditisOpen((prevState) => !prevState);
+      };
+      const toggleActivationSubmenu = (e) => {
+        e.preventDefault();
+        setActivationisOpen((prevState) => !prevState);
       };
 
       useEffect(() => {
@@ -103,7 +138,7 @@ const Slide = () => {
         fetchUser(); // Call the async function
       }, []);
       
-      const { role } = user || {};
+      const role = user?.role || 'user'; // Default role set to "user"
   
 
       
@@ -113,13 +148,39 @@ const Slide = () => {
         <ul className="list-unstyled components">
            <li>
           {/* Conditionally render based on user role */}
-          {role === 'admin' ? (
-            <Link to="/adminDashboard">Admin Dashboard</Link>
-          ) : (
-            <Link to="/dashboard">Dashboard</Link>
-          )}
+          
+          <Link to={role === "admin" ? "/adminDashboard" : "/dashboard"}>
+            {role === "admin" ? "Admin Dashboard" : "Dashboard"}
+          </Link>
+          
         </li>
-          <li>
+         {/* User Only Routes */}
+         {role === "user" && ( 
+          <>
+           <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleBankCreditSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={BankCreditisOpen}
+                >
+                  API Credits
+                  <i
+                    className={`bx ms-2 ${
+                      BankCreditisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${BankCreditisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="apicredits">API Credits</Link>
+                  </li>
+                </ul>
+              </li>
+              <li>
             <Link
               href="#pageSubmenu"
               onClick={toggleSubmenu}
@@ -271,7 +332,7 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="passwordChange">Password Change</Link>
+                    <Link to="passchange">Password Change</Link>
                   </li>
                 </ul>
               </li>
@@ -282,7 +343,7 @@ const Slide = () => {
                   className="dropdown-toggle"
                   aria-expanded={UserisOpen}
                 >
-                  Branch User Create
+                  Master
                   <i
                     className={`bx ms-2 ${
                       UserisOpen ? "bx-chevron-down" : "bx-chevron-right"
@@ -294,11 +355,17 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="userCreate">User Create</Link>
+                    <Link to="usercreated">User Creation</Link>
+                  </li>
+                  <li>
+                    <Link to="master">Branch Master</Link>
+                  </li>
+                  <li>
+                    <Link to="rolemaster">Role Master</Link>
                   </li>
                 </ul>
               </li>
-          <li>
+          {/* <li>
                 <Link
                   href="#pageSubmenu"
                   onClick={toggleBranchSubmenu}
@@ -317,25 +384,174 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="branch">Branch Create</Link>
+                    <Link to="master">Branch Create</Link>
+                  </li>
+                </ul>
+              </li> */}
+          {/* <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleRoleSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={BranchisOpen}
+                >
+                  Role Master
+                  <i
+                    className={`bx ms-2 ${
+                      RoleisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${RoleisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="rolemaster">Role Master</Link>
+                  </li>
+                </ul>
+              </li> */}
+          <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleEnableSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={EnableisOpen}
+                >
+                  User Enable/Disable
+                  <i
+                    className={`bx ms-2 ${
+                      EnableisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${EnableisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="userenabdis">User Enable/Disable</Link>
+                  </li>
+
+               
+                </ul>
+                
+              </li>
+
+              <li style={{marginLeft:'35px'}} className='mt-2'>
+                <ul>
+                <Logout/>
+                </ul>
+            
+          </li>
+              
+              
+              </>
+
+        
+          )} 
+
+
+         {/* Admin-Only Routes */}
+        {role === "admin" && (
+          <>
+           <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleAVSAdminSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={AVSAdminisOpen}
+                >
+                  AVS ADMIN
+                  <i
+                    className={`bx ms-2 ${
+                      AVSAdminisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${AVSAdminisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="avsAdmin">AVS ADMIN</Link>
                   </li>
                 </ul>
               </li>
-          {/* <li>
-            <Link to="#">Branch Create</Link>
-          </li> */}
-          {/* <li>
-            <Link to="#">User Branch Change</Link>
-          </li>
-          <li>
-            <Link to="#">Onboarding Suit</Link>
-          </li>
-          <li>
-            <Link to="#">Complaint</Link>
-          </li> */}
-          {/* <li style={{marginLeft:'70px'}} className='mt-2'>
-            <Logout/>
-          </li> */}
+              <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleAdminBankSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={AdminBankisOpen}
+                >
+                  Admin Bank Register
+                  <i
+                    className={`bx ms-2 ${
+                      AdminBankisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${AdminBankisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="adminbank">Admin Bank Register</Link>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleAddBankCreditSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={AddBankCreditisOpen}
+                >
+                  Add Credit
+                  <i
+                    className={`bx ms-2 ${
+                      AddBankCreditisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${AddBankCreditisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="bankCredit">Add Credit</Link>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleActivationSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={ActivationisOpen}
+                >
+                  Activation
+                  <i
+                    className={`bx ms-2 ${
+                      ActivationisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${ActivationisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="activate">Activation</Link>
+                  </li>
+                </ul>
+              </li>
+
+           
+          </>
+        )}
+         
         </ul>
       </nav>
     </>

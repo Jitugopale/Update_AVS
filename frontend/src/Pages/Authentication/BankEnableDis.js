@@ -39,7 +39,7 @@ const BankEnableDis = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-3">
       <h3 className="mb-3">Bank Enable/Disable</h3>
 
       {/* Search Bank */}

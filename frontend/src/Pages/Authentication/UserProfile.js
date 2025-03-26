@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
+import userprofile from "../Authentication/images/userProfile.png"
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
@@ -10,113 +11,83 @@ function UserProfile() {
   const [loading, setLoading] = useState(true); // State for loading
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [photo, setPhoto] = useState(null);
+  const [superAdminKey, setSuperAdminKey] = useState("");
+  const [userKey, setUserKey] = useState("");
+  const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [username, setUsername] = useState("");
+  const [branch, setBranch] = useState("");
 
-  // On component mount, fetch the user and photo
+
+
   useEffect(() => {
-    const fetchUser = async () => {
+    const storedUserData = sessionStorage.getItem("userData");
+  
+    if (storedUserData) {
       try {
-        const token = localStorage.getItem('token'); // Retrieve token from local storage
-        if (!token) {
-          setError("User not authenticated. Please log in.");
-          setLoading(false); // Stop loading
-          return;
-        }
-
-        // Send the token to fetch user data
-        const response = await axios.get('http://localhost:5000/api/auth/getbank', {
-          headers: {
-            'auth-token': token, // Send token in 'auth-token' header as required by fetchuser middleware
-          },
-        });
-
-        // Check if user data exists and set it
-        if (response.data) {
-          setUser(response.data);
-          const storedPhoto = localStorage.getItem(`userPhoto_${response.data.bankName}`); // Fetch photo from local storage based on userId
-          setPhoto(storedPhoto || response.data.photo); // Set the photo from localStorage or API response
-        } else {
-          setError('No user data found.');
-        }
+        const parsedData = JSON.parse(storedUserData);
+        console.log("Stored User Profile:", parsedData);
+  
+        setSuperAdminKey(parsedData?.userkey || "N/A");
+        setUserKey(parsedData?.userkey || "N/A"); // ✅ Fixed casing
+        setToken(parsedData?.access_token || "N/A");
+        setEmail(parsedData?.email || "N/A");
+        setRole(parsedData?.role || "N/A");
+        setUsername(parsedData?.username || "N/A");
+        setBranch(parsedData?.branch || "N/A");
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        setError('Error fetching user data. Please try again.');
-      } finally {
-        setLoading(false); // Stop loading in both success and error cases
+        console.error("Error parsing userData:", error);
       }
-    };
-
-    fetchUser();
-  }, []);
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const uploadedPhoto = reader.result; // Set the uploaded photo as base64
-        setPhoto(uploadedPhoto);
-
-        // Save the uploaded photo in localStorage using the unique userId
-        const userId = user ? user.bankName : null;
-        if (userId) {
-          localStorage.setItem(`userPhoto_${userId}`, uploadedPhoto); // Save the photo with a unique key
-        }
-      };
-      reader.readAsDataURL(file);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear the authentication token
-    // Do not remove photo from localStorage to persist it across sessions
-    window.location.reload(); // Reload page to reflect changes
-  };
-
-  const { bankName,userId,email } = user || {};
+  }, []);
 
   return (
     <div>
       <div style={styles.profileCircle} onClick={() => setModalIsOpen(true)}>
-        {photo ? (
-          <img src={photo} alt="User Avatar" style={styles.avatar} />
-        ) : (
-          <span style={styles.initials}>{bankName?.charAt(0)}{bankName?.charAt(0)}</span>
-        )}
+        {/* <span style={styles.initials}>{username ? username.charAt(0).toUpperCase() : "U"}</span> */}
+        <img 
+    src={userprofile} 
+    alt="User Profile" 
+    style={styles.profileImage} 
+  />
+
       </div>
 
       <Modal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} style={modalStyles}>
         <div style={styles.modalHeader}>
-          <h2 style={styles.modalTitle}>User Profile</h2>
+          <h4 style={styles.modalTitle}>User Profile</h4>
           <span style={styles.closeIcon} onClick={() => setModalIsOpen(false)}>
-            &times; {/* X mark for closing the modal */}
+            &times; {/* X mark for clhnhgnhosing the modal */}
           </span>
         </div>
         {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
+          <>
           <p>{error}</p>
-        ) : user ? (
           <div style={styles.modalContent}>
-            <div style={styles.uploadSection}>
-              {photo ? (
-                <img src={photo} alt="Uploaded" style={styles.uploadedPhoto} />
-              ) : (
-                <div style={styles.defaultPhoto}>
-                  <span style={styles.initials}>{bankName?.charAt(0)}{bankName?.charAt(0)}</span>
-                </div>
-              )}
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={styles.fileInput} />
-            </div>
             <div style={styles.userData}>
-              <p style={styles.userInfo}>BankName: {bankName}</p>
-              <p style={styles.userInfo}>User ID: {userId}</p>
-              <p style={styles.userInfo}>Email: {email}</p>
+            <p style={styles.userInfo}>Bank: {username}</p>
+              <p style={styles.userInfo}>superAdminKey: {superAdminKey}</p>
+              <p style={styles.userInfo}>UserKey: {userKey}</p>
+              <p style={styles.userInfo}>Email ID: {email}</p>
+              <p style={styles.userInfo}>Role: {role}</p>
+              {/* <p 
+  style={{ 
+    ...styles.userInfo, 
+    display: branch && branch.trim() !== "" ? "block" : "none" 
+  }}
+>
+  Branch: {branch}
+</p> */}
+
+
+
               {/* <p style={styles.userInfo}>Address: {bankName}</p>
               <p style={styles.userInfo}>Phone Number: {bankName}</p>
               <p style={styles.userInfo}>City: {bankName}</p> */}
             </div>
-            <button onClick={handleLogout} style={styles.logoutButton}>Logout</button>
           </div>
+          </>
         ) : (
           <p>No user data available.</p>
         )}
@@ -157,6 +128,12 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  profileImage: {
+    width: '100%', 
+    height: '100%', 
+    borderRadius: '50%', 
+    objectFit: 'cover'
+  },  
   modalTitle: {
     color: '#333',
     marginBottom: '10px',
@@ -166,6 +143,7 @@ const styles = {
     padding: '20px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+    overflowX:"auto"
   },
   uploadSection: {
     display: 'flex',
@@ -235,8 +213,8 @@ const styles = {
 const modalStyles = {
   content: {
     position: 'fixed', // Ensure it's properly centered
-    top: '20%',
-    left: '85%',
+    top: '30%',
+    left: '83%',
     right: 'auto',
     bottom: 'auto',
     transform: 'translate(-50%, -50%)',

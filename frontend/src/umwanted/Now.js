@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
-import MainPdf from "./MainPdf";
-import Loan from "./Loan";
+import MainPdf from "../Pages/Verification/MainPdf";
+import Loan from "../Pages/Verification/Loan";
 import html2canvas from "html2canvas";
 import "./credit.css";
-import CreditTable from "./CreditTable";
+import CreditTable from "../Pages/Verification/CreditTable";
 
 const CreditVerificationPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

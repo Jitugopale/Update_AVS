@@ -108,6 +108,7 @@ const handlePopup = () => {
         { key: 9, name: "Client I", amount: 450, date: "2025-03-12" },
         { key: 10, name: "Client J", amount: 500, date: "2024-03-11" },
         { key: 11, name: "Rahul", amount: 850, date: "2024-03-10" },
+        { key: 12, name: "Virat", amount: 850, date: "2024-03-10" },
         { key: 13, name: "Client M", amount: 730, date: "2024-03-08" },
         { key: 14, name: "Client N", amount: 590, date: "2024-03-07" },
         { key: 15, name: "Client O", amount: 670, date: "2024-03-06" },
@@ -117,7 +118,7 @@ const handlePopup = () => {
         { key: 19, name: "Client S", amount: 740, date: "2024-03-02" },
         { key: 20, name: "Client T", amount: 530, date: "2024-03-01" },
         { key: 21, name: "Client U", amount: 490, date: "2024-02-29" },
-        { key: 22, name: "Client V", amount: 870, date: "2024-02-28" },
+        { key: 22, name: "India", amount: 870, date: "2024-02-28" },
         { key: 23, name: "Client W", amount: 920, date: "2024-02-27" },
         { key: 24, name: "Client X", amount: 660, date: "2024-02-26" },
         { key: 25, name: "Client Y", amount: 580, date: "2024-02-25" },
@@ -138,26 +139,28 @@ const handlePopup = () => {
   };
 
   const today = new Date().toISOString().split("T")[0]; // Get today's date
-
-  const filteredTransactions = [...transactions]
+  const filteredTransactions = transactions
   .filter((t) => {
+    // Convert values to lowercase for case-insensitive comparison
+    const clientName = t.name.toLowerCase();
+    const searchQuery = searchClientName.toLowerCase();
+
     // Check if transaction falls within the selected date range
     const matchesDate =
       !fromDate || (t.date >= fromDate && (!toDate || t.date <= toDate));
 
     // Check if client name matches search input
-    const matchesClient =
-      !searchClientName ||
-      t.name.toLowerCase().includes(searchClientName.toLowerCase());
+    const matchesClient = !searchClientName || clientName.includes(searchQuery);
 
     return matchesDate && matchesClient;
   })
   .sort((a, b) => {
-    // Sort results so matching names appear at the top when searching
+    // Ensure matched names appear at the top
     const aMatch = a.name.toLowerCase().includes(searchClientName.toLowerCase());
     const bMatch = b.name.toLowerCase().includes(searchClientName.toLowerCase());
-    return bMatch - aMatch; // Sort true (1) before false (0)
+    return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
   });
+
 
 
   return (
@@ -286,6 +289,10 @@ const handlePopup = () => {
               </div>
             </div>
           </div>
+
+
+          {!loading ? (
+
           <Table striped bordered className="mt-3">
             <thead>
             <tr>
@@ -361,6 +368,12 @@ const handlePopup = () => {
                   </Modal.Footer>
                 </Modal>
           </Table>
+          ) : (
+            <div className="text-center mt-3">
+              <Spinner animation="border" />
+              <p>Loading data...</p>
+            </div>
+          )}
           <div className="container">
             <div className="d-flex align-items-center">
               <div className="col-2">

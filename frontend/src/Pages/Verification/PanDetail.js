@@ -308,213 +308,222 @@ const PanDetail = () => {
 
   return (
    <>
-   
-        <div className="container-fluid">
-
-      <div className="d-flex align-items-center">
-        <div className=" p-3" style={{maxWidth: '1200px', width: '100%'}}>
-          <h1 className="card-title" style={{color:'green'}}>PAN Detail Verification</h1>
-          <div style={styles.statusBar} className='mt-2'>
-          <div>
-            {/* Display specific count for 'credit' */}
-            <div>
-              <span>No. Of Count : {verificationCounts.pandetail}</span>
+    <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+              <h1 className="card-title" style={{color:'green'}}>PAN Detail Verification</h1>
             </div>
-          </div>{" "}
-          <span>Your available Credit: -62</span>
-        </div>
-          {/* <div className="mb-3">
-            <label htmlFor="id_number" className="form-label">Enter PAN ID Number</label>
-            <input
-              type="text"
-              className="form-control"
-              id="id_number"
-              value={idNumber}
-              onChange={(e) => setIdNumber(e.target.value)}
-            />
-          </div> */}
-          <div>
-<label>Enter ID Number : &nbsp;</label>
-        <input
-          type="text"
-          value={idNumber}
-          onChange={(e) => setIdNumber(e.target.value)}
-          placeholder="Enter PAN Number"
-          style={inputStyle}
-        />
-        <div className="buttons mt-3">
-        {!isVerified &&<button style={styles.button} onClick={handleVerify} disabled={loading} >{loading ? 'Verifying...' : 'Verify'}</button>}
-            <button type='button' style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
-            <button style={styles.button} onClick={() => setIdNumber("")}>Clear</button>
-            <button style={styles.button}>Search</button>
-          </div>
+            <div className="card-body">
+            <div className="container-fluid">
+
+<div className="d-flex align-items-center">
+  <div className=" p-3" style={{maxWidth: '1200px', width: '100%'}}>
+    <div style={styles.statusBar} className='mt-2'>
+    <div>
+      {/* Display specific count for 'credit' */}
+      <div>
+        <span>No. Of Count : {verificationCounts.pandetail}</span>
       </div>
-      
-
-          {/* <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
-            {loading ? 'Verifying...' : 'Verify'}
-          </button> */}
-
-          {/* Show error if any */}
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-        </div>
-      </div>
-
-      {/* Show response data below the card */}
-      {/* {responseData && (
-        <div className="container mt-4">
-          <h3>Verification Result</h3>
-          <div className="card shadow p-3">
-            <p><strong>Status:</strong> {responseData.status === 'success' ? 'Verified' : 'Not Verified'}</p>
-            <p><strong>Full Name:</strong> {responseData.verifiedData.data.fullName}</p>
-            <p><strong>Father's Name:</strong> {responseData.verifiedData.data.fatherName || 'N/A'}</p>
-            <p><strong>PAN Status:</strong> {responseData.verifiedData.data.panStatus}</p>
-            <p><strong>Category:</strong> {responseData.verifiedData.data.category}</p>
-            <p><strong>Aadhaar Seeding Status:</strong> {responseData.verifiedData.data.aadhaarSeedingStatus}</p>
-            <p><strong>Masked Aadhaar:</strong> {responseData.verifiedData.data.maskedAadhaar || 'N/A'}</p>
-            <p><strong>Verification Date:</strong> {responseData.verifiedData.formattedDate} at {responseData.verifiedData.formattedTime}</p>
-          </div>
-        </div>
-      )} */}
-       {!isVerified &&responseData && (
-  <div className="container mt-5 d-flex justify-content-center">
-    <div
-      className="card shadow-lg p-4" 
-      style={{
-        borderRadius: "10px",
-        backgroundColor: "#f8f9fa",
-        width: "800px",
-        height:'610px',
-        overflowY: "auto", // Enable vertical scrolling
-
-      }}
-    >
-      <table
-        className="table table-bordered"
-        style={{ fontSize: "16px" }}
-      >
-        <thead>
-          <tr>
-            <th
-              colSpan="2"
-              className="text-center"
-              style={{
-                fontSize: "28px",
-                fontWeight: "bold",
-                color: "#686868",
-              }}
-            >
-              VERIFICATION DETAILS
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Status :</td>
-            <td
-              style={{
-                textAlign: "left",
-                color: responseData.status ? "green" : "red",
-              }}
-            >
-              {responseData.status ? "Verified" : "Not Verified"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Id Number :</td>
-            <td style={{ textAlign: "left" }}>
-            {responseData.data?.[0]?.PanNumber || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>First Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.firstName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Middle Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.middleName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Last Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.lastName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Full Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.fullName || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Reference Id :</td>
-            <td style={{ textAlign: "left" }}>
-            {responseData.data?.[0]?.reference_id || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>PAN Status :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.panStatus || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Category :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.category || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>
-              Aadhaar Seeding Status :
-            </td>
-            <td style={{ textAlign: "left" }}>
-            {responseData.data?.[0]?.aadhaarSeedingStatus === "NULL" ? "Not Identified" : responseData.data?.[0]?.aadhaarSeedingStatus}
-            </td>
-          </tr>
-          {/* <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Verification Date :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.data?.[0]?.VerifiedDate || "N/A"}
-            </td>
-          </tr> */}
-          {/* <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>
-              Verification Date :
-            </td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.formattedDate}
-            </td>
-          </tr> */}
-        </tbody>
-      </table>
-
-      <div className="text-center mt-4">
-        <button
-        onClick={generatePDF}
-          className="btn btn-success btn-lg"
-          style={{
-            fontSize: "16px",
-            padding: "12px 20px",
-            borderRadius: "5px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          }}
-        >
-          Download PDF
-        </button>
-      </div>
-    </div>
-
+    </div>{" "}
+    <span>Your available Credit: -62</span>
   </div>
+    {/* <div className="mb-3">
+      <label htmlFor="id_number" className="form-label">Enter PAN ID Number</label>
+      <input
+        type="text"
+        className="form-control"
+        id="id_number"
+        value={idNumber}
+        onChange={(e) => setIdNumber(e.target.value)}
+      />
+    </div> */}
+    <div>
+<label>Enter ID Number : &nbsp;</label>
+  <input
+    type="text"
+    value={idNumber}
+    onChange={(e) => setIdNumber(e.target.value)}
+    placeholder="Enter PAN Number"
+    style={inputStyle}
+  />
+  <div className="buttons mt-3">
+  {!isVerified &&<button style={styles.button} onClick={handleVerify} disabled={loading} >{loading ? 'Verifying...' : 'Verify'}</button>}
+      <button type='button' style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
+      <button style={styles.button} onClick={() => setIdNumber("")}>Clear</button>
+      <button style={styles.button}>Search</button>
+    </div>
+</div>
+
+
+    {/* <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
+      {loading ? 'Verifying...' : 'Verify'}
+    </button> */}
+
+    {/* Show error if any */}
+    {error && <div className="alert alert-danger mt-3">{error}</div>}
+  </div>
+</div>
+
+{/* Show response data below the card */}
+{/* {responseData && (
+  <div className="container mt-4">
+    <h3>Verification Result</h3>
+    <div className="card shadow p-3">
+      <p><strong>Status:</strong> {responseData.status === 'success' ? 'Verified' : 'Not Verified'}</p>
+      <p><strong>Full Name:</strong> {responseData.verifiedData.data.fullName}</p>
+      <p><strong>Father's Name:</strong> {responseData.verifiedData.data.fatherName || 'N/A'}</p>
+      <p><strong>PAN Status:</strong> {responseData.verifiedData.data.panStatus}</p>
+      <p><strong>Category:</strong> {responseData.verifiedData.data.category}</p>
+      <p><strong>Aadhaar Seeding Status:</strong> {responseData.verifiedData.data.aadhaarSeedingStatus}</p>
+      <p><strong>Masked Aadhaar:</strong> {responseData.verifiedData.data.maskedAadhaar || 'N/A'}</p>
+      <p><strong>Verification Date:</strong> {responseData.verifiedData.formattedDate} at {responseData.verifiedData.formattedTime}</p>
+    </div>
+  </div>
+)} */}
+ {!isVerified &&responseData && (
+<div className="container mt-5 d-flex justify-content-center">
+<div
+className="card shadow-lg p-4" 
+style={{
+  borderRadius: "10px",
+  backgroundColor: "#f8f9fa",
+  width: "800px",
+  height:'610px',
+  overflowY: "auto", // Enable vertical scrolling
+
+}}
+>
+<table
+  className="table table-bordered"
+  style={{ fontSize: "16px" }}
+>
+  <thead>
+    <tr>
+      <th
+        colSpan="2"
+        className="text-center"
+        style={{
+          fontSize: "28px",
+          fontWeight: "bold",
+          color: "#686868",
+        }}
+      >
+        VERIFICATION DETAILS
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Status :</td>
+      <td
+        style={{
+          textAlign: "left",
+          color: responseData.status ? "green" : "red",
+        }}
+      >
+        {responseData.status ? "Verified" : "Not Verified"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Id Number :</td>
+      <td style={{ textAlign: "left" }}>
+      {responseData.data?.[0]?.PanNumber || "N/A"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>First Name :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.firstName}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Middle Name :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.middleName}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Last Name :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.lastName}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Full Name :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.fullName || "N/A"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Reference Id :</td>
+      <td style={{ textAlign: "left" }}>
+      {responseData.data?.[0]?.reference_id || "N/A"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>PAN Status :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.panStatus || "N/A"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Category :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.category || "N/A"}
+      </td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>
+        Aadhaar Seeding Status :
+      </td>
+      <td style={{ textAlign: "left" }}>
+      {responseData.data?.[0]?.aadhaarSeedingStatus === "NULL" ? "Not Identified" : responseData.data?.[0]?.aadhaarSeedingStatus}
+      </td>
+    </tr>
+    {/* <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>Verification Date :</td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.data?.[0]?.VerifiedDate || "N/A"}
+      </td>
+    </tr> */}
+    {/* <tr>
+      <td style={{ fontWeight: "bold", textAlign: "left" }}>
+        Verification Date :
+      </td>
+      <td style={{ textAlign: "left" }}>
+        {responseData.formattedDate}
+      </td>
+    </tr> */}
+  </tbody>
+</table>
+
+<div className="text-center mt-4">
+  <button
+  onClick={generatePDF}
+    className="btn btn-success btn-lg"
+    style={{
+      fontSize: "16px",
+      padding: "12px 20px",
+      borderRadius: "5px",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    }}
+  >
+    Download PDF
+  </button>
+</div>
+</div>
+
+</div>
 
 )}
-    <PanDetailTable/>
+<PanDetailTable/>
 
-      </div>
+</div>
+            </div>
+       </div>
+    </div>
+   
+       
       
 
       

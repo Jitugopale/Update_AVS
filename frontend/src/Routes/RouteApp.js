@@ -20,7 +20,7 @@ import CreditVerificationPage from "../Pages/Verification/CreditVerificationPage
 import Loan from "../Pages/Verification/Loan";
 import MainPdf from "../Pages/Verification/MainPdf";
 import BranchCreate from "../Pages/Verification/BranchCreate";
-import UserCreate from "../Pages/Verification/UserCreate";
+import UserCreate from "../umwanted/UserCreate";
 import AdminDashboard from "../Pages/Verification/AdminDashboard";
 import AshADmin from "../Layout/AshADmin";
 import PasswordChange from "../NewDash/PasswordChange";
@@ -47,7 +47,7 @@ const RouteApp = () => {
           <Route path="/otp-verification" element={<OTPVerification />} />
           <Route path="/logout" element={<Logout/>} />
           <Route path="/user" element={<UserProfile/>} />
-          <Route path="/master" element={<BranchMaster/>} />
+          {/* <Route path="/master" element={<BranchMaster/>} />
           <Route path="/rolemaster" element={<RoleMaster/>} />
           <Route path="/usercreated" element={<UserCreated/>} />
           <Route path="/adminbank" element={<AdminBankCreate/>} />
@@ -57,7 +57,7 @@ const RouteApp = () => {
           <Route path="/userenabdis" element={<UserEnabDis/>} />
           <Route path="/clientenabdis" element={<ClientEnableDis/>} />
           <Route path="/apicredits" element={<ApiCredits/>} />
-          <Route path="/avsAdmin" element={<AvsAdmin/>} />
+          <Route path="/avsAdmin" element={<AvsAdmin/>} /> */}
           {/* <Route path="/adminDashboard" element={<AdminDashboard/>} /> */}
           <Route path="/dashboard" element={<Dashboard />}>
               <Route index element={<Cont/>} /> 
@@ -73,13 +73,17 @@ const RouteApp = () => {
               <Route path="loan" element={<Loan/>}/>
               <Route path="main" element={<MainPdf/>}/>
               <Route path="branch" element={<BranchCreate/>}/>
-              <Route path="userCreate" element={<UserCreate/>}/>
-              <Route path="passwordChange" element={<PasswordChange/>}/>
+              <Route path="usercreated" element={<UserCreated/>} />
+              <Route path="passchange" element={<BankPasswordChange/>} />
+              <Route path="userenabdis" element={<UserEnabDis/>} />
+              <Route path="master" element={<BranchMaster/>} />
+              <Route path="rolemaster" element={<RoleMaster/>} />
+              <Route path="apicredits" element={<ApiCredits/>} />
           </Route>
           <Route path="/adminDashboard" element={<AshADmin/>}>
               {/* <Route path="adminDashboard" element={<AdminDashboard />} /> */}
               <Route index element={<AdminDashboard/>} /> 
-              <Route path="pan" element={<PancardVerificationPage/>} />
+              {/* <Route path="pan" element={<PancardVerificationPage/>} />
               <Route path="aadhaar" element={<AadhaarVerificationPage/>}/>
               <Route path="voter" element={<VoterVerificationPage/>}/>
               <Route path="gst" element={<GSTVerificationPage/>}/>
@@ -88,10 +92,11 @@ const RouteApp = () => {
               <Route path="passport" element={<PassportVerification/>}/>
               <Route path="credit" element={<CreditVerificationPage/>}/>
               <Route path="loan" element={<Loan/>}/>
-              <Route path="main" element={<MainPdf/>}/>
-              <Route path="branch" element={<BranchCreate/>}/>
-              <Route path="userCreate" element={<UserCreate/>}/>
-              <Route path="passwordChange" element={<PasswordChange/>}/>
+              <Route path="main" element={<MainPdf/>}/> */}
+              <Route path="adminbank" element={<AdminBankCreate/>} />
+              <Route path="bankCredit" element={<BankCreditAdd/>} />
+              <Route path="activate" element={<Activation/>} />
+              <Route path="avsAdmin" element={<AvsAdmin/>} />
           </Route>
         </Routes>
       </Router>

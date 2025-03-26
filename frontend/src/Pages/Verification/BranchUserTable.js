@@ -88,7 +88,7 @@ const BranchUserTable = () => {
   return (
     <>
       <h3 style={{
-                  marginTop:'120px',fontSize:'28px',color:'darkgoldenrod'
+                  marginTop:'50px',fontSize:'28px',color:'darkgoldenrod'
                 }}>Branch Users Created</h3> 
 
       <div

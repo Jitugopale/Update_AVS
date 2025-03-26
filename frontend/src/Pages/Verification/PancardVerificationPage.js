@@ -15,6 +15,12 @@ const PancardVerificationPage = ({
   const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [isVerified, setIsVerified] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [superAdminKey, setSuperAdminKey] = useState("");
+  const [bankname, setBankname] = useState("");
+  const [userKey, setUserKey] = useState("");
+  const [token, setToken] = useState("");
+  
+
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [verificationCounts, setVerificationCounts] = useState({
@@ -30,6 +36,17 @@ const PancardVerificationPage = ({
   
     // Extract only the valid keys for verification counts
     const keys = Object.keys(verificationCounts);
+
+      useEffect(() => {
+        const storedUserData = JSON.parse(sessionStorage.getItem("userData"));
+        console.log("Stored" ,storedUserData)
+        if (storedUserData) {
+          setSuperAdminKey(storedUserData.superAdminKey);
+          setUserKey(storedUserData.userkey);
+          setToken(storedUserData.access_token);
+          setBankname(storedUserData.username);
+        }
+      }, []);
 
     useEffect(() => {
       const fetchVerificationCounts = async () => {
@@ -93,64 +110,83 @@ const PancardVerificationPage = ({
       XLSX.writeFile(wb, "Verified_Users.xlsx");
     };
   
-
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-    setSuccessMessage(""); // Reset success message on new submission
-    setError(null); // Clear any previous errors
+    setLoading(true);
+    setSuccessMessage("");
+    setError(null);
+  
 
+  
+    // Fix: Ensure correct timestamp format
+    const currentTimestamp = new Date().toISOString();
+  
+    const requestData = {
+      createdBy: userKey,
+      createdOn: currentTimestamp,
+      modifiedBy: superAdminKey,
+      modifiedOn: currentTimestamp,
+      pannumber: pannumber,
+      verificationBy: userKey,
+      superAdminKey: superAdminKey,
+    };
+  
     try {
-      const response = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/Pan/VerifyPan?pannumber=${pannumber}`);
-      setVerificationResult(response.data);
-      console.log(response.data)
-      setSuccessMessage("PAN Card verified successfully!");
-    } catch (error) {
-      console.error("Error verifying PAN card", error);
-      setError(
-        error.response?.data?.message ||
-          "Something went wrong while verifying the PAN card."
+      const response = await axios.post(
+        "http://103.228.152.233:8130/api/verification/verify-PAN",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      setVerificationResult(null); // Clear any previous verification result
+      console.log(response.data)
+  
+      if (response.data.returnSuccess === true && response.data.returnMessage[0]==="Pan Verified") {
+        setVerificationResult(response.data);
+        console.log("Verification Success:", response.data);
+        setSuccessMessage(response.data.returnMessage[0]||"PAN Card verified successfully!");       
+        //  setTimeout(() => {
+        //   setMessage(" ");
+        //   handleClear();
+        // }, 1000);
+        setIsVerified(true); // ✅ Set verification state
+        setTimeout(()=>{
+          setSuccessMessage("")
+        },2000)
+
+      
+      } else if (response.data.returnMessage[0]==="Pan Recived From DB" && response.data.returnSuccess === true) {
+        setVerificationResult(response.data);
+        console.log("PAN verification successful!");
+        setSuccessMessage(response.data.returnMessage[0]||"PAN Card already verified!");
+        setTimeout(()=>{
+          setSuccessMessage("")
+        },2000)
+      }
+    }catch (error) {
+      console.error("Error verifying PAN card", error);
+    
+      if (error.response?.data?.errors?.pannumber) {
+        setError(error.response.data.errors.pannumber[0]); // ✅ Extract and display "Invalid PAN number."
+      } else {
+        setError(
+          error.response?.data?.message ||
+            "Something went wrong while verifying the PAN card."
+        );
+      }
+    
+      setTimeout(() => {
+        setError(""); // 🔥 Clear message after 2 seconds
+      }, 2000);
     } finally {
-      setLoading(false); // Stop loading after request finishes
+      setLoading(false); // ✅ Stop loading in all cases
     }
   };
-
-
-// const generatePDF = () => {
-//   if (verificationResult) {
-//     const doc = new jsPDF();
-
-//     // Add title with a larger font size and bold style
-//     doc.setFontSize(18);
-//     doc.setFont("helvetica", "bold");
-//     doc.text("PAN Card Verification Report", 20, 20);
-
-//     // Add a space before the data
-//     doc.setFontSize(12);
-//     doc.setFont("helvetica", "normal");
-
-//     // Add the name with bold styling
-//     doc.text(`Name:`, 20, 40);
-//     doc.setFont("helvetica", "bold");
-//     doc.text(verificationResult.full_name, 60, 40);
-
-//     // Add PAN number with bold styling
-//     doc.setFont("helvetica", "normal");
-//     doc.text(`PAN Number:`, 20, 50);
-//     doc.setFont("helvetica", "bold");
-//     doc.text(verificationResult.pan_number, 60, 50);
-
-//     // Add the date in a smaller font size
-//     doc.setFontSize(10);
-//     doc.setFont("helvetica", "normal");
-//     doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 60);
-
-//     // Save the PDF with a styled name
-//     doc.save("PAN_Verification_Report.pdf");
-//   }
-// };
+  
+    
 
 
 const generatePDF = () => {
@@ -166,7 +202,7 @@ const generatePDF = () => {
   // Center-aligned title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(25);
-  const title = "Shankar Nagari Sahakari Bank Ltd";
+  const title = bankname ? bankname : "Super Admin";
   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
 
   // Center-aligned subtitle
@@ -182,8 +218,8 @@ const generatePDF = () => {
 
   // Verification Statement
   const verificationText = `This is to Certify that ${
-    verificationResult.data?.[0]?.Name|| "N/A"
-  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${verificationResult.data?.[0]?.PanNumber}.`;
+    verificationResult.data?.name|| "N/A"
+  } are verified from https://www.pan.utiitsl.com/ using and verified Pan No. ${verificationResult.data?.panNumber}.`;
   const verificationSplit = doc.splitTextToSize(verificationText, 180);
   doc.text(verificationSplit, 14, 50);
 
@@ -214,12 +250,12 @@ const generatePDF = () => {
   doc.setFont("helvetica", "bold");
   doc.text("Name                    :", contentX + 2, contentY + 5);
   doc.setFont("helvetica", "normal");
-  doc.text(verificationResult.data?.[0]?.Name|| "N/A", contentX + 40, contentY + 5);
+  doc.text(verificationResult.data?.name|| "N/A", contentX + 40, contentY + 5);
 
   doc.setFont("helvetica", "bold");
   doc.text("Pan Number :", contentX + 2, contentY + 15);
   doc.setFont("helvetica", "normal");
-  doc.text(verificationResult.data?.[0]?.PanNumber ? verificationResult.data?.[0]?.PanNumber.toString() : "N/A", contentX + 40, contentY + 15);
+  doc.text(verificationResult.data?.panNumber ? verificationResult.data?.panNumber.toString() : "N/A", contentX + 40, contentY + 15);
 
   
   // Footer with signatures
@@ -243,8 +279,8 @@ const generatePDF = () => {
   doc.text("Verified By : User", 120, 180);
 
   // Save PDF
-  const fileName =verificationResult.data?.[0]?.PanNumber
-    ? `${verificationResult.data?.[0]?.Name}_verification_certificate.pdf`
+  const fileName =verificationResult.data?.panNumber
+    ? `${verificationResult.data?.name}_verification_certificate.pdf`
     : "verification_certificate.pdf";
   doc.save(fileName);
 };
@@ -282,13 +318,19 @@ const inputStyle = {
 
 
   return (
-    <div className="container-fluid">
+    <>
+    <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+              <h1 className="card-title" style={{color:'green'}}>PAN Verification</h1>
+            </div>
+            <div className="card-body">
+            <div className="container-fluid">
       <div className="container d-flex align-items-center">
       <div
         className="p-2 mt-2"
         style={{ maxWidth: '1200px', width: '100%' }}
       >
-          <h1 className="card-title" style={{color:'green'}}>PAN Verification</h1>
           <div style={styles.statusBar} className='mt-2'>
           <div>
             {/* Display specific count for 'credit' */}
@@ -298,24 +340,15 @@ const inputStyle = {
           </div>{" "}
           <span>Your available Credit: -62</span>
         </div>
+        {successMessage && <div className="alert alert-success mt-3">{successMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            {/* <label htmlFor="pannumber" className="form-label">
-              PAN Number
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="pannumber"
-              value={pannumber}
-              onChange={(e) => setPannumber(e.target.value)}
-              required
-            /> */}
             <label>Enter ID Number : &nbsp;</label>
         <input
           type="text"
           value={pannumber}
           onChange={(e) => setPannumber(e.target.value)}
+          maxLength={10}
           placeholder="Enter PAN Number"
           id="pannumber"
           style={inputStyle}
@@ -341,8 +374,8 @@ const inputStyle = {
         {verificationResult && (
           <div className="mt-4">
             <h3 className="text-success text-center">PAN Verification Result</h3>
-            <p className="text-center">Name: {verificationResult.data?.[0]?.Name}</p>
-            <p className="text-center">PAN Number: {verificationResult.data?.[0]?.PanNumber}</p>
+            <p className="text-center">Name: {verificationResult.data?.name}</p>
+            <p className="text-center">PAN Number: {verificationResult.data?.panNumber}</p>
 
             {/* Button to download PDF */}
             <div className="text-center mt-3">
@@ -376,6 +409,11 @@ const inputStyle = {
     </div>
     <PancardTable/>
     </div>
+            </div>
+       </div>
+    </div>
+  
+    </>
     
   );
 };

@@ -180,25 +180,28 @@ const handlePopup = () => {
 //     return t.date >= fromDate && t.date <= toDate; // If both, filter between range
 //   });
 
-const filteredTransactions = [...transactions]
+const filteredTransactions = transactions
   .filter((t) => {
+    // Convert values to lowercase for case-insensitive comparison
+    const clientName = t.name.toLowerCase();
+    const searchQuery = searchClientName.toLowerCase();
+
     // Check if transaction falls within the selected date range
     const matchesDate =
       !fromDate || (t.date >= fromDate && (!toDate || t.date <= toDate));
 
     // Check if client name matches search input
-    const matchesClient =
-      !searchClientName ||
-      t.name.toLowerCase().includes(searchClientName.toLowerCase());
+    const matchesClient = !searchClientName || clientName.includes(searchQuery);
 
     return matchesDate && matchesClient;
   })
   .sort((a, b) => {
-    // Sort results so matching names appear at the top when searching
+    // Ensure matched names appear at the top
     const aMatch = a.name.toLowerCase().includes(searchClientName.toLowerCase());
     const bMatch = b.name.toLowerCase().includes(searchClientName.toLowerCase());
-    return bMatch - aMatch; // Sort true (1) before false (0)
+    return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
   });
+
 
 
 
@@ -330,6 +333,8 @@ const filteredTransactions = [...transactions]
               </div>
             </div>
           </div>
+          {!loading ? (
+
           <Table striped bordered className="mt-3">
             <thead>
             <tr>
@@ -405,6 +410,12 @@ const filteredTransactions = [...transactions]
                   </Modal.Footer>
                 </Modal>
           </Table>
+          ) : (
+            <div className="text-center mt-3">
+              <Spinner animation="border" />
+              <p>Loading data...</p>
+            </div>
+          )}
           <div className="container">
             <div className="d-flex align-items-center">
               <div className="col-2">

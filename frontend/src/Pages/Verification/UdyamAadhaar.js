@@ -391,10 +391,16 @@ const generatePDF = () => {
   };
 
   return (
-    <div className="container-fluid">
+    <>
+     <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+               <h1 className="card-title" style={{color:'green'}}>Udyam Aadhaar Verification</h1>
+            </div>
+            <div className="card-body">
+            <div className="container-fluid">
       <div className="d-flex align-items-center">
         <div className="p-3" style={{ maxWidth: '1200px', width: '100%' }}>
-        <h1 className="card-title" style={{color:'green'}}>Udyam Aadhaar Verification</h1>
           <div style={styles.statusBar} className='mt-3'>
           <div>
             {/* Display specific count for 'credit' */}
@@ -609,6 +615,11 @@ const generatePDF = () => {
 
       <UdyamTable/>
     </div>
+            </div>
+       </div>
+    </div>
+
+    </>
   );
 };
 

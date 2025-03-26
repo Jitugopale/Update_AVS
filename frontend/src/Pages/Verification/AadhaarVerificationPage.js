@@ -60,6 +60,26 @@ const AadhaarVerificationPage = () => {
   
     // Extract only the valid keys for verification counts
     const keys = Object.keys(verificationCounts);
+      const [superAdminKey, setSuperAdminKey] = useState("");
+        const [error, setError] = useState(null);
+          const [loading, setLoading] = useState(false); // Added loading state
+            const [bankname, setBankname] = useState("");
+          
+        
+    
+      const [userKey, setUserKey] = useState("");
+      const [token, setToken] = useState("");
+
+          useEffect(() => {
+              const storedUserData = JSON.parse(sessionStorage.getItem("userData"));
+              console.log("Stored" ,storedUserData)
+              if (storedUserData) {
+                setSuperAdminKey(storedUserData.superAdminKey);
+                setUserKey(storedUserData.userkey);
+                setToken(storedUserData.access_token);
+                setBankname(storedUserData.username);
+              }
+            }, []);
 
     useEffect(() => {
       const fetchVerificationCounts = async () => {
@@ -232,7 +252,7 @@ const handleAdharPdf = (aadhaarDetails) => {
   // Center-aligned title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(25);
-  const title = "Shankar Nagari Sahakari Bank Ltd";
+  const title = bankname ? bankname : "Super Admin";
   doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
 
   // Center-aligned subtitle
@@ -248,9 +268,9 @@ const handleAdharPdf = (aadhaarDetails) => {
 
   // Verification Statement
   const verificationText = `This is to Certify that ${
-    aadhaarDetails.full_name || "N/A"
+    aadhaarDetails.data.data.fullName || "N/A"
   }, Aadhaar no. ${
-    aadhaarDetails.aadhaar_number ? aadhaarDetails.aadhaar_number.toString() : "N/A"
+    aadhaarDetails.data.data.aadhaarNumber ? aadhaarDetails.data.data.aadhaarNumber.toString() : "N/A"
   } are verified from https://uidai.gov.in/ using with OTP.`;
   const verificationSplit = doc.splitTextToSize(verificationText, 180);
   doc.text(verificationSplit, 14, 50);
@@ -282,37 +302,37 @@ const handleAdharPdf = (aadhaarDetails) => {
   doc.setFont("helvetica", "bold");
   doc.text("Name                    :", contentX + 2, contentY + 5);
   doc.setFont("helvetica", "normal");
-  doc.text(aadhaarDetails.full_name || "N/A", contentX + 40, contentY + 5);
+  doc.text(aadhaarDetails.data.data.fullName || "N/A", contentX + 40, contentY + 5);
 
   doc.setFont("helvetica", "bold");
   doc.text("Aadhaar Number :", contentX + 2, contentY + 15);
   doc.setFont("helvetica", "normal");
-  doc.text(aadhaarDetails.aadhaar_number ? aadhaarDetails.aadhaar_number.toString() : "N/A", contentX + 40, contentY + 15);
+  doc.text(aadhaarDetails.data.data.aadhaarNumber ? aadhaarDetails.data.data.aadhaarNumber.toString() : "N/A", contentX + 40, contentY + 15);
 
   doc.setFont("helvetica", "bold");
   doc.text("DOB                      :", contentX + 2, contentY + 25);
   doc.setFont("helvetica", "normal");
-  doc.text(aadhaarDetails.dob || "N/A", contentX + 40, contentY + 25);
+  doc.text(aadhaarDetails.data.data.dob || "N/A", contentX + 40, contentY + 25);
 
   doc.setFont("helvetica", "bold");
   doc.text("Gender                  : ", contentX + 2, contentY + 35);
   doc.setFont("helvetica", "normal");
-  doc.text(aadhaarDetails.gender || "N/A", contentX + 40, contentY + 35);
+  doc.text(aadhaarDetails.data.data.gender || "N/A", contentX + 40, contentY + 35);
 
   doc.setFont("helvetica", "bold");
   doc.text("Address                : ", contentX + 2, contentY + 45);
   doc.setFont("helvetica", "normal");
   const addressLines = [
-    aadhaarDetails.address.house,
-    aadhaarDetails.address.street,
-    aadhaarDetails.address.landmark,
-    aadhaarDetails.address.loc,
-    aadhaarDetails.address.po,
-    aadhaarDetails.address.subdist,
-    aadhaarDetails.address.dist,
-    aadhaarDetails.address.state,
-    aadhaarDetails.address.country,
-    aadhaarDetails.address.zip,
+    aadhaarDetails.data.data.address.house,
+    aadhaarDetails.data.data.address.street,
+    aadhaarDetails.data.data.address.landmark,
+    aadhaarDetails.data.data.address.loc,
+    aadhaarDetails.data.data.address.po,
+    aadhaarDetails.data.data.address.subDist,
+    aadhaarDetails.data.data.address.dist,
+    aadhaarDetails.data.data.address.state,
+    aadhaarDetails.data.data.address.country,
+    aadhaarDetails.data.data.zip,
   ]
     .filter(Boolean)
     .join(", ");
@@ -324,8 +344,8 @@ const handleAdharPdf = (aadhaarDetails) => {
   doc.rect(imageX, imageY, imageWidth, imageHeight);
 
   // Add the profile image or fallback text
-  if (aadhaarDetails.profile_image) {
-    const imageData = `data:image/jpeg;base64,${aadhaarDetails.profile_image}`;
+  if (aadhaarDetails.data.data.profileImage) {
+    const imageData = `data:image/jpeg;base64,${aadhaarDetails.data.data.profileImage}`;
     doc.addImage(imageData, "JPEG", imageX, imageY, imageWidth, imageHeight);
   } else {
     doc.setFont("helvetica", "italic");
@@ -354,93 +374,184 @@ const handleAdharPdf = (aadhaarDetails) => {
   doc.text("Verified By : User", 120, 220);
 
   // Save PDF
-  const fileName = aadhaarDetails.full_name
-    ? `${aadhaarDetails.full_name}_verification_certificate.pdf`
+  const fileName = aadhaarDetails.data.data.fullName
+    ? `${aadhaarDetails.data.data.fullName}_verification_certificate.pdf`
     : "verification_certificate.pdf";
   doc.save(fileName);
 };
 
 
   
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (e) => {
     try {
-      // Make a POST request to your backend to send OTP
-      const response = await axios.post(`https://192.168.20.150:82/Document_Verify_Back/api/Aadhar/VerifyAadhar?aadharNumber=${aadhaarNumber}`);
+      e.preventDefault();
+      setLoading(true);
+
+
+      const currentTimestamp = new Date().toISOString();
   
-      // Check if OTP was sent successfully and handle the 
-      console.log(response)
-      if (response.data.message === "OTP send to Aadhar register mobile number successfully") {
-        // Store the client_id in sessionStorage
-        sessionStorage.setItem("clientId", response.data.client_id);
-        
+      const requestData = {
+        createdBy: userKey,
+        createdOn: currentTimestamp,
+        modifiedBy: superAdminKey,
+        modifiedOn: currentTimestamp,
+        aadharNuber: aadhaarNumber,
+        verificationBy: userKey,
+        superAdminKey: superAdminKey,
+      };
+      // Make a POST request to your backend to send OTP
+      const response = await axios.post(`http://103.228.152.233:8130/api/verification/verify-aadhar`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+
+      );
+      console.log(response.data)
+
+
+      if (response.data.returnSuccess===true) {        
         // Update state to reflect OTP sent status
         setIsOtpSent(true);
         setErrorMessage("");  // Clear any previous error messages
-        setSuccessMessage("OTP sent to your registered mobile number.");
+        sessionStorage.setItem("clientId", response.data.data.data.client_id);
+        sessionStorage.setItem("RequestID", response.data.data.requestId);
+        sessionStorage.setItem("AadharNumber", aadhaarNumber);
+        setSuccessMessage(response.data.returnMessage[0]||"OTP sent to your registered mobile number.");
+        setTimeout(()=>{
+          setSuccessMessage("")
+        },2000)
+        console.log("Entered Aadhaar Number:", aadhaarNumber);
+
+// ✅ Check if the correct Aadhaar number is stored
+console.log("Stored Aadhaar Number in sessionStorage:", sessionStorage.getItem("AadharNumber"));
+console.log("Stored Request ID in sessionStorage:", sessionStorage.getItem("RequestID"));
+console.log("Stored Client ID in sessionStorage:", sessionStorage.getItem("clientId"));
+
       } else if (response.data.message === 'Aadhaar is already verified.') {
           // If Aadhaar is already verified, set the verified data
           setVerifiedData(response.data.verifiedData);
           setErrorMessage("");  // Clear any previous error messages
           setSuccessMessage("Aadhaar already verified.");
+          setTimeout(()=>{
+            setSuccessMessage("")
+          },2000)
 
       }else
        {
         // Handle failure to send OTP
-        setErrorMessage("Failed to send OTP. Please try again.");
+        setErrorMessage(response.data.data.message||"Failed to send OTP. Please try again.");
+        setTimeout(()=>{
+          setErrorMessage("")
+        },2000)
       }
     } catch (error) {
       // Handle errors from the backend or network issues
       console.error(error);
       setErrorMessage(error.response?.data?.message || "Failed to send OTP. Please try again.");
+      setTimeout(()=>{
+        setErrorMessage("")
+      },2000)
+    }finally {
+      setLoading(false); // ✅ Stop loading in all cases
     }
   };
   
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = async (e) => {
     try {
+      e.preventDefault();
+
+      setLoading(true);
+
       const clientId = sessionStorage.getItem("clientId");
+      const AadharNumber = sessionStorage.getItem("AadharNumber");
+      const RequestID = sessionStorage.getItem("RequestID");
 
       if (!clientId) {
         setErrorMessage("Client ID not found. Please resend OTP.");
         return;
       }
+      const requestData = {
+        otp: otp,
+        requestId: RequestID,
+        aadharNuber: AadharNumber,
+        userKey: userKey,
+        superAdminKey: superAdminKey,
+      };
 
       const response = await axios.post(
-        `https://192.168.20.150:82/Document_Verify_Back/api/Aadhar/VerifyOTP?clientId=${clientId}&OTP=${otp}&aadharNumber=${aadhaarNumber}`
+        `http://103.228.152.233:8130/api/verification/verify-aadhar-otp`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      if (response.data.message === "Aadhaar verification successful.") {
+      if (response.data.returnSuccess === true) {
         setIsVerified(true);
         setErrorMessage("");
-        setSuccessMessage("Aadhaar verification completed successfully.");
-        setAadhaarDetails(response.data.aadhaarData.data);
+        setSuccessMessage(response.data.data.message||"Aadhaar verification completed successfully.");
+        setTimeout(()=>{
+          setSuccessMessage("");
+        },2000)
+        setAadhaarDetails(response.data);
+        console.log(response.data)
 
-        const newVerifiedUser = {
-          aadhaarNumber,
-          name: response.data.aadhaarData.data.full_name,
-          gender: response.data.aadhaarData.data.gender,
-          dob: response.data.aadhaarData.data.dob,
-          address: response.data.aadhaarData.data.address,
-          verificationDate: new Date().toISOString(),
-          profile_image:response.data.aadhaarData.data.profile_image
-        };
+        // const newVerifiedUser = {
+        //   aadhaarNumber,
+        //   name: response.data.aadhaarData.data.full_name,
+        //   gender: response.data.aadhaarData.data.gender,
+        //   dob: response.data.aadhaarData.data.dob,
+        //   address: response.data.aadhaarData.data.address,
+        //   verificationDate: new Date().toISOString(),
+        //   profile_image:response.data.aadhaarData.data.profile_image
+        // };
 
-        const storedUsers = JSON.parse(localStorage.getItem("verifiedUsers")) || [];
-        localStorage.setItem("verifiedUsers", JSON.stringify([...storedUsers, newVerifiedUser]));
-        setVerifiedUsers((prevUsers) => [...prevUsers, newVerifiedUser]);
+        // const storedUsers = JSON.parse(localStorage.getItem("verifiedUsers")) || [];
+        // localStorage.setItem("verifiedUsers", JSON.stringify([...storedUsers, newVerifiedUser]));
+        // setVerifiedUsers((prevUsers) => [...prevUsers, newVerifiedUser]);
       } else {
+        console.error()
         setErrorMessage("OTP verification failed. Please try again.");
       }
-    } catch (error) {
-      setErrorMessage(error.response?.data?.message || "Verification failed.");
+    }catch(error) {
+      console.error("Error verifying Aadhaar card", error);
+    
+      if (error.response?.data?.errors?.aadhaarNumber) {
+        setError(error.response.data.errors.aadhaarNumber[0]); // ✅ Extract and display "Invalid PAN number."
+      } else {
+        setError(
+          error.response?.data?.message ||
+            "Something went wrong while verifying the Aadhaar card."
+        );
+      }
+    
+      setTimeout(() => {
+        setError(""); // 🔥 Clear message after 2 seconds
+      }, 2000);
+    }finally {
+      setLoading(false); // ✅ Stop loading in all cases
     }
   };
 
   
 
   return (
-    <div style={containerStyle}>
-      <h1 style={{color:"green"}}>Aadhaar Verification</h1>
+    <>
+     <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+               <h1 style={{color:"green"}}>Aadhaar Verification</h1>
+            </div>
+            <div className="card-body">
+            <div style={containerStyle}>
       <div style={styles.statusBar}>
       <div>
             {/* Display specific count for 'credit' */}
@@ -450,10 +561,15 @@ const handleAdharPdf = (aadhaarDetails) => {
           </div>{" "}
           <span>Your available Credit: -62</span>
         </div>
+        {errorMessage && <div className="alert alert-success mt-3">{errorMessage}</div>}
+        {successMessage && <div className="alert alert-success mt-3">{successMessage}</div>}
+
       <div>
+
         <label>Aadhaar Number : &nbsp;</label>
         <input
           type="text"
+          maxLength={12}
           value={aadhaarNumber}
           onChange={(e) => setAadhaarNumber(e.target.value)}
           placeholder="Enter your Aadhaar number"
@@ -476,8 +592,8 @@ const handleAdharPdf = (aadhaarDetails) => {
         )}
 
 <       div style={buttonGroupStyle} className="mt-3">
-            {!isOtpSent && !isVerified && <button style={styles.button}  onClick={handleSendOtp}>Verify Aadhar</button>}      
-            {isOtpSent && !isVerified && <button onClick={handleVerifyOtp}  style={styles.button} >Verify OTP</button>}
+            {!isOtpSent && !isVerified && <button style={styles.button}  onClick={handleSendOtp} disabled={loading}>{loading ? 'Verifying...' : 'Verify Aadhar'}</button>}      
+            {isOtpSent && !isVerified && <button onClick={handleVerifyOtp}  style={styles.button}       disabled={otp.length === 0 || loading}>{loading ? 'Verifying...' : 'Verify OTP'}</button>}
             <button type='button' style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setAadhaarNumber("")}>Clear</button>
             <button style={styles.button}>Search</button>
@@ -490,26 +606,27 @@ const handleAdharPdf = (aadhaarDetails) => {
              <div  className="text-center">
              <h3 style={{color:'green'}}>Aadhaar Details</h3>
           <img
-            src={`data:image/jpeg;base64,${aadhaarDetails.profile_image}`}
+            src={`data:image/jpeg;base64,${aadhaarDetails.data.data.profile_image}`}
             alt="Profile"
             style={{ width: "150px" }}
           />
-          <p style={{color:'black'}}><b>Name:</b> {aadhaarDetails.full_name}</p>
-          <p style={{color:'black'}}><b>Gender:</b> {aadhaarDetails.gender}</p>
-          <p style={{color:'black'}}><b>DOB:</b> {aadhaarDetails.dob}</p>
+          <p style={{color:'black'}}><b>Name:</b> {aadhaarDetails.data.data.fullName}</p>
+          <p style={{color:'black'}}><b>Gender:</b> {aadhaarDetails.data.data.gender}</p>
+          <p style={{color:'black'}}><b>DOB:</b> {aadhaarDetails.data.data.dob}</p>
           <p style={{color:'black'}}>
             <b>Address:</b>{" "}
             {[
-              aadhaarDetails.address.house,
-              aadhaarDetails.address.street,
-              aadhaarDetails.address.landmark,
-              aadhaarDetails.address.loc,
-              aadhaarDetails.address.po,
-              aadhaarDetails.address.subdist,
-              aadhaarDetails.address.dist,
-              aadhaarDetails.address.state,
-              aadhaarDetails.address.country,
-              aadhaarDetails.address.zip,
+              aadhaarDetails.data.data.address.house,
+              aadhaarDetails.data.data.address.street,
+              aadhaarDetails.data.data.address.landmark,
+              aadhaarDetails.data.data.address.loc,
+              aadhaarDetails.data.data.address.po
+              ,
+              aadhaarDetails.data.data.address.subDist,
+              aadhaarDetails.data.data.address.dist,
+              aadhaarDetails.data.data.address.state,
+              aadhaarDetails.data.data.address.country,
+              aadhaarDetails.data.data.zip,
             ]
               .filter(Boolean)
               .join(", ")}
@@ -527,6 +644,11 @@ const handleAdharPdf = (aadhaarDetails) => {
       <DateComponent verifiedUsers={verifiedUsers} />
 
     </div>
+            </div>
+       </div>
+    </div>
+ 
+    </>
   );
 };
 

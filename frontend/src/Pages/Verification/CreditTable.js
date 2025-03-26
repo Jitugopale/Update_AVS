@@ -169,7 +169,7 @@ const handleExcelDownload = () => {
   return (
     <>
       <h3 style={{
-                  marginTop:'120px',fontSize:'28px',color:'darkgoldenrod'
+                  marginTop:'65px',fontSize:'28px',color:'darkgoldenrod'
                 }}>Verified Users</h3>
                  <div className="row mb-3">
   <div className="col-12 col-md-1" style={{width:'100px', marginTop:'13px'}}>

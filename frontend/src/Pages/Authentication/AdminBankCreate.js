@@ -6,7 +6,7 @@ const AdminBankCreate = () => {
   const [showRegister, setShowRegister] = useState(false);
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-3">
       {!showRegister ? (
         <>
         <div className="container">

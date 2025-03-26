@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
-import { useRecoveryContext } from '../Authentication/RecoveryContext';
+import { useRecoveryContext } from './RecoveryContext';
 
 const OTPVerification = () => {
   const [userId, setUserId] = useState(''); // Replaced email with userId state

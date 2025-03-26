@@ -657,32 +657,17 @@ const inputStyle = {
 
 
   return (
-    <div className="container-fluid">
-    {/* <div className="d-flex justify-content-center align-items-center">
-      <div className="card shadow p-3" style={{ width: '500px' }}>
-        <h1 className="card-title">GST Verification</h1>
-        <div className="mb-3">
-          <label htmlFor="id_number" className="form-label">Enter GST Number</label>
-          <input
-            type="text"
-            className="form-control"
-            id="id_number"
-            value={idNumber}
-            onChange={(e) => setIdNumber(e.target.value)}
-          />
-        </div>
-        <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
-          {loading ? 'Verifying...' : 'Verify'}
-        </button>
-   */}
-        {/* Show error if any */}
-        {/* {error && <div className="alert alert-danger mt-3">{error}</div>}
-      </div>
-    </div> */}
+    <>
+     <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+            <h1 className="card-title" style={{color:'green'}}>GST Verification</h1>
+            </div>
+            <div className="card-body">
+            <div className="container-fluid">
 
 <div className="d-flex align-items-center">
         <div className=" p-3" style={{maxWidth: '1200px', width: '100%'}}>
-          <h1 className="card-title" style={{color:'green'}}>GST Verification</h1>
           <div style={styles.statusBar} className='mt-2'>
           <div>
             {/* Display specific count for 'credit' */}
@@ -932,6 +917,11 @@ const inputStyle = {
       )}
     <GSTTable/>
   </div>
+            </div>
+       </div>
+    </div>
+  
+  </>
 
   
   );

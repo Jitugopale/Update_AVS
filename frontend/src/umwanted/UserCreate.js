@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import BranchUserTable from './BranchUserTable';
+import BranchUserTable from '../Pages/Verification/BranchUserTable';
 
 const UserCreate = () => {
   const [userId, setUserId] = useState('');

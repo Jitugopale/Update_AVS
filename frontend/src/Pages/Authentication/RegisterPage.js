@@ -26,50 +26,21 @@ const RegisterPage = () => {
     return () => clearInterval(timer); // Cleanup the timer
   }, []);
 
-  // const formatDate = (date) => {
-  //   const day = String(date.getDate()).padStart(2, "0");
-  //   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
-  //   const year = date.getFullYear();
-  //   return `${day}/${month}/${year}`;
-  // };
   const formatDate = (date) => {
-    return date.toISOString(); // Converts to "YYYY-MM-DDTHH:mm:ssZ"
+    return date.toISOString();
 };
 
   const [formData, setFormData] = useState({
-    clientnm: "",
-    clientnobranches: "",
-    clientadD1: "",
-    clienttouronver: "",
-    statecd: "",
-    mailid: "",
-    officernm: "",
-    socregno: "",
-    cntctprsn: "",
-    moB1: "",
-    districtcd: "",
-    talukacd: "",
-    pincode: "",
-    clientdoj: formatDate // Automatically generated
+    ClientName: "",
+    ClientEmail: "",
+    Contact: "",
+    LoginId: "",
+    Password: "",
+    RegistrationNo: "",  
   });
 
   
-  // const [formData, setFormData] = useState({
-  //   CLIENTNM: "",
-  //   CLIENTNOBRANCHES: "",
-  //   CLIENTADD1: "",
-  //   CLIENTTOURONVER: "",
-  //   STATECD: "",
-  //   MAILID: "",
-  //   OFFICERNM: "",
-  //   registrationNo: "",
-  //   CNTCTPRSN: "",
-  //   MOB1: "",
-  //   DISTRICTCD: "",
-  //   TALUKACD: "",
-  //   PINCODE: "",
-  //   dateOfAdmission: formatDate // Automatically generated
-  // });
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -88,10 +59,10 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("https://192.168.20.150:82/Document_Verify_Back/api/BankRegister", formData);
+      const response = await axios.post("https://localhost:7057/api/admin/client-register", formData);
       console.log(response)
 
-      if (response.data.outcome.outcomeId === 1) {
+      if (response.data.data > 0) {
         setSuccess("Registration successful! Redirecting to login...");
         setError("");
         setTimeout(() => {
@@ -99,6 +70,7 @@ const RegisterPage = () => {
         }, 2000);
       } else {
         setError(response.data.error || "Registration failed. Please try again.");
+        console.log("Register Failed");
         setSuccess("");
       }
     } catch (error) {
@@ -114,7 +86,7 @@ const RegisterPage = () => {
   return (
     <>
         <MainNavbar/>
-        <div className="p-2"  style={{ backgroundImage: `url(${img})`}}>
+        <div className="p-2 d-flex align-items-center"  style={{ backgroundImage: `url(${img})`, height:'87vh'}}>
         <div className="container mt-3 mb-3 card" style={{ maxWidth: "1000px", padding: "15px" }}>
       <h3 className="text-md-center text-start mb-2">Client Master</h3>
       {error && <div className="alert alert-danger">{error}</div>}
@@ -132,10 +104,10 @@ const RegisterPage = () => {
   <input
     type="text"
     className="form-control"
-    id="clientnm"
-    name="clientnm"
+    id="ClientName"
+    name="ClientName"
     placeholder="Bank Name"
-    value={formData.clientnm}
+    value={formData.ClientName}
     onChange={handleChange}
     required
     style={{ flexGrow: 1 }}
@@ -158,14 +130,14 @@ const RegisterPage = () => {
 
         <div className="row" id="stars">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
-            <label htmlFor="clientnobranches" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>No of Branches <span style={{ color: "red" }}>*</span></label>
+            <label htmlFor="ClientEmail" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Email <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               className="form-control"
-              id="clientnobranches"
-              name="clientnobranches"
-              placeholder="No of Branches"
-              value={formData.clientnobranches}
+              id="ClientEmail"
+              name="ClientEmail"
+              placeholder="Email ID"
+              value={formData.ClientEmail}
               onChange={handleChange}
               required
             />
@@ -175,16 +147,16 @@ const RegisterPage = () => {
             <input
               type="text"
               className="form-control"
-              id="socregno"
-              name="socregno"
+              id="RegistrationNo"
+              name="RegistrationNo"
               placeholder="Bank Registration No"
-              value={formData.socregno}
+              value={formData.RegistrationNo}
               onChange={handleChange}
               required
             />
           </div>
         </div>
-        <div className="row" id="starss">
+        {/* <div className="row" id="starss">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
             <label htmlFor="address" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Address <span style={{ color: "red" }}>*</span></label>
             <textarea
@@ -192,7 +164,7 @@ const RegisterPage = () => {
               id="clientadD1"
               name="clientadD1"
               rows="2"
-              value={formData.clientadD1}
+              value={formData.Contact}
               placeholder="Address"
               onChange={handleChange}
               required
@@ -211,50 +183,38 @@ const RegisterPage = () => {
               required
             />
           </div>
-        </div>
+        </div> */}
         <div className="row" id="star">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
-            <label htmlFor="totalTurnover" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Total Turnover of Bank <span style={{ color: "red" }}>*</span></label>
+            <label htmlFor="Contact" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Contact Number <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               className="form-control"
-              id="clienttouronver"
-              name="clienttouronver"
-              placeholder="Total Turnover of Bank"
-              value={formData.clienttouronver}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
-            <label htmlFor="mobile" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px',marginLeft:'15px'}}>Mobile Number <span style={{ color: "red" }}>*</span></label>
-            <input
-              type="text"
-              className="form-control"
-              id="moB1"
-              name="moB1"
+              id="Contact"
+              name="Contact"
               placeholder="Mobile Number"
-              value={formData.moB1}
+              value={formData.Contact}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
+            <label htmlFor="LoginId" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px',marginLeft:'15px'}}>User ID <span style={{ color: "red" }}>*</span></label>
+            <input
+              type="text"
+              className="form-control"
+              id="LoginId"
+              name="LoginId"
+              placeholder="User ID"
+              value={formData.LoginId}
               onChange={handleChange}
               required
             />
           </div>
         </div>
-        <div className="row" id="star">
+        {/* <div className="row" id="star">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
             <label htmlFor="state" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>State <span style={{ color: "red" }}>*</span></label>
-            {/*<span style={{ color: "red" }}>*</span> <select
-              className="form-control"
-              id="state"
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              required
-            >
-              <option value="">--Select--</option>
-              <option value="State1">State 1</option>
-              <option value="State2">State 2</option>
-            </select> <span style={{ color: "red" }}>*</span>*/}
             <input
               type="text"
               className="form-control"
@@ -279,8 +239,8 @@ const RegisterPage = () => {
               required
             />
           </div>
-        </div>
-        <div className="row" id="star">
+        </div> */}
+        {/* <div className="row" id="star">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
             <label htmlFor="email" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Email ID <span style={{ color: "red" }}>*</span></label>
             <input
@@ -307,8 +267,8 @@ const RegisterPage = () => {
               required
             />
           </div>
-        </div>
-        <div className="row" id="star">
+        </div> */}
+        {/* <div className="row" id="star">
           <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-start mb-3">
             <label htmlFor="projectOfficer" className="form-label text-start mt-2" style={{width:'300px', maxWidth:'300px'}}>Name Project Officer <span style={{ color: "red" }}>*</span></label>
             <select
@@ -337,7 +297,7 @@ const RegisterPage = () => {
               required
             />
           </div>
-        </div>
+        </div> */}
         <div className="text-center">
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Submitting..." : "Register"}

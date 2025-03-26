@@ -306,11 +306,18 @@ const CreditVerificationPage = () => {
   };
 
   return (
-    <div className="container">
-      <div className=" p-3" style={{ maxWidth: "1200px", width: "100%" }}>
-        <h1 className="card-title" style={{ color: "green" }}>
+    <>
+     <div className="container mt-3">
+       <div className="card">
+            <div className="card-header">
+            <h1 className="card-title" style={{ color: "green" }}>
           Credit Verification
         </h1>
+            </div>
+            <div className="card-body">
+            <div className="container">
+      <div className=" p-3" style={{ maxWidth: "1200px", width: "100%" }}>
+      
         <div style={styles.statusBar} className="mt-2">
           <div>
             {/* Display specific count for 'credit' */}
@@ -562,6 +569,11 @@ const CreditVerificationPage = () => {
       )}
       <CreditTable generatePDF={generatePDF}/>
     </div>
+            </div>
+       </div>
+    </div>
+
+    </>  
   );
 };
 

@@ -20,7 +20,7 @@ const AvsAdmin = () => {
   // };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-3">
       <div className="card">
         <div className="card-header">
           <h4 className="mb-4">ADD Client API Credit</h4>

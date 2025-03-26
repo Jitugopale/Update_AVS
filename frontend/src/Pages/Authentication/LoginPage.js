@@ -4,15 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import MainNavbar from "./MainNavbar";
 import img from "./images/back2.jpg"
-import { useRecoveryContext } from '../Authentication/RecoveryContext.js';
+import { useRecoveryContext } from './RecoveryContext.js';
+import Cookies from "js-cookie"; // Install: npm install js-cookie
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [userId, setUserId] = useState(""); // State for userId
-  const [password, setPassword] = useState(""); // State for password
-  const [username, setUserName] = useState(""); // State for password
+  const [Pasword, setPassword] = useState(""); // State for password
+  const [LoginId, setLoginId] = useState(""); // State for password
   const [error, setError] = useState(""); // State for error messages
   const [message, setMessage] = useState(""); // State for success messages
+    const [loading, setLoading] = useState(false); // Added loading state
   // const [clickedFields, setClickedFields] = useState({
   //   email: false,
   //   password: false,
@@ -86,34 +88,82 @@ const LoginPage = () => {
   //     }
   //   }
   // };
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   setMessage("");
+  
+  //   try {
+  //     const response = await axios.post("http://103.228.152.233:8130/api/auth/authenticateUser", {
+  //       LoginId,
+  //       Pasword,
+  //     });
+  
+  //     console.log("Login response:", response.data);
+  
+  //     // Check if response.data is a string and parse it
+  //     let responseData = response.data;
+  //     if (typeof responseData.data === "string") {
+  //       responseData.data = JSON.parse(responseData.data);
+  //     }
+  
+  //     if (responseData.data.success === true) {
+  //       const token = responseData.data.access_token; // Extract token
+  //       localStorage.setItem("token", token); // Store token
+  //       localStorage.setItem("userData", JSON.stringify(responseData.data)); // Store entire user response
+  //       navigate("/dashboard");
+  //     } else {
+  //       setError(responseData.data.message || "Invalid login.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     setError(err.response?.data?.error || "Server not reachable.");
+  //   }
+  // };
+  
+  
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setMessage("");
-  
-    try {
-      const response = await axios.post("http://43.239.110.100/Doc_Verify_Backend/api/Auth", {
-        username,
-        password,
-      });
-  
-      console.log("Login response:", response.data);
-  
-      if (response.data.result && response.data.result.outcome.outcomeId === 1) {
-        const token = response.data.result.outcome.tokens;
-        localStorage.setItem("token", token);
-        navigate("/dashboard");
-      } else {
-        setError(response.data.result?.Outcome?.OutcomeDetail || "Invalid login.");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError(err.response?.data?.error || "Server not reachable.");
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);  // ✅ Start loading
+  setError("");
+  setMessage("");
+
+  try {
+    const response = await axios.post("http://103.228.152.233:8130/api/auth/authenticateUser", {
+    // const response = await axios.post("https://localhost:7057/api/auth/authenticateUser", {
+      LoginId,
+      Pasword,
+    });
+
+    console.log("Login response:", response.data);
+
+    let responseData = response.data;
+    if (typeof responseData.data === "string") {
+      responseData.data = JSON.parse(responseData.data);
     }
-  };
-  
-  
+
+    if (responseData.data.success === true) {
+      const token = responseData.data.access_token; 
+      
+      // Store token and userData in session storage
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("userData", JSON.stringify(responseData.data));
+
+      // Or store in cookies (safer for authentication)
+      Cookies.set("token", token, { expires: 1, secure: true });
+      Cookies.set("userData", JSON.stringify(responseData.data), { expires: 1, secure: true });
+
+      navigate("/dashboard");
+    } else {
+      setError(responseData.data.message || "Invalid login.");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    setError(err.response?.data?.error || "Server not reachable.");
+  }
+};
+
 
    // Function to handle password reset
    // Function to handle password reset
@@ -160,27 +210,27 @@ const LoginPage = () => {
               <form onSubmit={handleLogin}>
                 {/* Username Field */}
                 <div className="mb-3">
-                  <label htmlFor="username" className="form-label">USERNAME *</label>
+                  <label htmlFor="LoginId" className="form-label">USERNAME *</label>
                   <input
                     type="text"
-                    id="username"
+                    id="LoginId"
                     className="form-control"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUserName(e.target.value)} // Update state on change
+                    placeholder="LoginId"
+                    value={LoginId}
+                    onChange={(e) => setLoginId(e.target.value)} // Update state on change
                     required
                   />
                 </div>
 
                 {/* Password Field */}
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label">PASSWORD *</label>
+                  <label htmlFor="Pasword" className="form-label">PASSWORD *</label>
                   <input
-                    type="password"
-                    id="password"
+                    type="Pasword"
+                    id="Pasword"
                     className="form-control"
                     placeholder="Password"
-                    value={password}
+                    value={Pasword}
                     onChange={(e) => setPassword(e.target.value)} // Update state on change
                     required
                   />
@@ -192,7 +242,8 @@ const LoginPage = () => {
                 </div> */}
 
                 {/* Login Button */}
-                <button type="submit" className="btn btn-success w-100">LOGIN</button>
+                <button type="submit" className="btn btn-success w-100"           disabled={loading}
+                >{loading ? "Loggedin..." : "LOGIN"}</button>
 
                 {/* Register Link */}
                 <div className="mt-3 text-center">

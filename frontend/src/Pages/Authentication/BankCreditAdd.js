@@ -140,7 +140,7 @@ const BankCreditAdd = () => {
 
   return (
     <>
-    <div className="container mt-5">
+    <div className="container mt-3">
        <div className="card">
           <div className="card-header">
           <h3 className="mb-3">Add Credit</h3>
