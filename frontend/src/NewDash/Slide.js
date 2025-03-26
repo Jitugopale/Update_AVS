@@ -138,7 +138,7 @@ const Slide = () => {
         fetchUser(); // Call the async function
       }, []);
       
-      const role = user?.role || 'user'; // Default role set to "user"
+      const role = user?.role || 'admin'; // Default role set to "user"
   
 
       
@@ -149,8 +149,8 @@ const Slide = () => {
            <li>
           {/* Conditionally render based on user role */}
           
-          <Link to={role === "admin" ? "/adminDashboard" : "/dashboard"}>
-            {role === "admin" ? "Admin Dashboard" : "Dashboard"}
+          <Link to={role === 'admin' ? "/adminDashboard" : "/dashboard"}>
+            {role === 'admin' ? "Admin Dashboard" : "Dashboard"}
           </Link>
           
         </li>
@@ -547,6 +547,12 @@ const Slide = () => {
                   </li>
                 </ul>
               </li>
+               <li style={{marginLeft:'35px'}} className='mt-2'>
+                <ul>
+                <Logout/>
+                </ul>
+            
+          </li>
 
            
           </>

@@ -4,6 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const UserEnabDis = () => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [dropdownSearch, setDropdownSearch] = useState(""); // Track search input
+    const [searchQuery, setSearchQuery] = useState("");
+
   const [userData, setUserData] = useState([
     { id: "user1", name: "User 1", enabled: false },
     { id: "user2", name: "User 2", enabled: false },
@@ -20,8 +23,9 @@ const UserEnabDis = () => {
 
   // Handle user selection
   const handleUserSelect = (option) => {
-    const selected = userData.find((u) => u.id === option.value);
+    const selected = userData.find((b) => b.id === option.value);
     setSelectedUser(selected);
+    setSearchQuery(selected.name); // Set search query to highlight selected bank in table
   };
 
   // Toggle Enable/Disable status
@@ -32,11 +36,26 @@ const UserEnabDis = () => {
       )
     );
 
+  
+  
     // Update selected user if it is the one being toggled
     if (selectedUser && selectedUser.id === id) {
       setSelectedUser((prev) => ({ ...prev, enabled: !prev.enabled }));
     }
   };
+
+  const dropdownOptions = dropdownSearch
+  ? userData.map((user) => ({ value: user.id, label: user.name })) // Show all when searching
+  : userData.slice(0, 3).map((user) => ({ value: user.id, label: user.name })); // Show only top 3 by default
+
+  const filteredBanks = userData.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedUsers = filteredBanks.sort((a, b) => {
+    if (a.name.toLowerCase() === searchQuery.toLowerCase()) return -1;
+    return 0;
+  });
 
   return (
     <>
@@ -51,13 +70,21 @@ const UserEnabDis = () => {
 {/* Search User */}
 <div className="mb-3">
   <label className="form-label">Search User</label>
-  <Select
+  {/* <Select
     options={userOptions}
     value={selectedUser ? { value: selectedUser.id, label: selectedUser.name } : null}
     onChange={handleUserSelect}
     placeholder="Search and select a user..."
     isSearchable
-  />
+  /> */}
+  <Select
+              options={dropdownOptions}
+              value={selectedUser ? { value: selectedUser.id, label: selectedUser.name } : null}
+              onChange={handleUserSelect}
+              placeholder="Search and select a bank..."
+              isSearchable
+              onInputChange={(input) => setDropdownSearch(input)}
+            />
 </div>
 
 {/* User Table */}
@@ -71,7 +98,7 @@ const UserEnabDis = () => {
     </tr>
   </thead>
   <tbody>
-    {userData.map((user, index) => (
+    {sortedUsers.map((user, index) => (
       <tr key={user.id}>
         <td>{index + 1}</td>
         <td>{user.name}</td>

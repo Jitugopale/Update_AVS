@@ -100,21 +100,27 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const BankCreditAdd = () => {
   const [selectedBank, setSelectedBank] = useState(null);
+  const [dropdownSearch, setDropdownSearch] = useState(""); // Track search input
+  const [searchQuery, setSearchQuery] = useState("");
+
+
   const [bankData, setBankData] = useState([
-    { value: "bank1", label: "Bank 1", amount: "" },
-    { value: "bank2", label: "Bank 2", amount: "" },
-    { value: "bank3", label: "Bank 3", amount: "" },
-    { value: "bank4", label: "Bank 4", amount: "" },
-    { value: "bank5", label: "Bank 5", amount: "" },
+    { id: "bank1", value: "bank1", label: "Bank 1", amount: "" },
+    { id: "bank2", value: "bank2", label: "Bank 2", amount: "" },
+    { id: "bank3", value: "bank3", label: "Bank 3", amount: "" },
+    { id: "bank4", value: "bank4", label: "Bank 4", amount: "" },
+    { id: "bank5", value: "bank5", label: "Bank 5", amount: "" },
   ]);
 
   // Handle search selection
 
   // Handle bank selection
-  const handleBankSelect = (selectedOption) => {
-    setSelectedBank(selectedOption);
-  };
 
+  const handleBankSelect = (option) => {
+    const selected = bankData.find((b) => b.id === option.value);
+    setSelectedBank(selected);
+    setSearchQuery(selected.label); // Set search query to highlight selected bank in table
+  };
   // Handle amount input only for selected bank
   const handleAmountChange = (bankValue, newAmount) => {
     setBankData((prev) =>
@@ -124,17 +130,29 @@ const BankCreditAdd = () => {
     );
   };
 
+  const dropdownOptions = dropdownSearch
+  ? bankData.map((bank) => ({ value: bank.id, label: bank.label })) // Show all when searching
+  : bankData.slice(0, 3).map((bank) => ({ value: bank.id, label: bank.label })); // Show only top 3 by default
+
+  const filteredBanks = bankData.filter((bank) =>
+    bank.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedBanks = filteredBanks.sort((a, b) => {
+    if (a.label.toLowerCase() === searchQuery.toLowerCase()) return -1;
+    return 0;
+  });
   
   // Move selected bank to top in table
-  const sortedBankTable = selectedBank
-    ? [selectedBank, ...bankData.filter((bank) => bank.value !== selectedBank.value)]
-    : bankData;
+  // const sortedBankTable = selectedBank
+  //   ? [selectedBank, ...bankData.filter((bank) => bank.value !== selectedBank.value)]
+  //   : bankData;
 
   // Sort top 3 banks first
-  const sortedBankOptions = [
-    ...bankData.slice(0, 3), // Top 3 banks
-    ...bankData.slice(3).sort((a, b) => a.label.localeCompare(b.label)), // Remaining sorted
-  ];
+  // const sortedBankOptions = [
+  //   ...bankData.slice(0, 3), // Top 3 banks
+  //   ...bankData.slice(3).sort((a, b) => a.label.localeCompare(b.label)), // Remaining sorted
+  // ];
 
   
 
@@ -151,13 +169,15 @@ const BankCreditAdd = () => {
 {/* Search Bank Dropdown */}
 <div className="mb-3">
   <label className="form-label">Search Bank</label>
-  <Select
-    options={sortedBankOptions}
-    value={selectedBank}
-    onChange={handleBankSelect}
-    placeholder="Search and select a bank..."
-    isSearchable
-  />
+ 
+   <Select
+              options={dropdownOptions}
+              value={selectedBank ? { value: selectedBank.id, label: selectedBank.label } : null}
+              onChange={handleBankSelect}
+              placeholder="Search and select a bank..."
+              isSearchable
+              onInputChange={(input) => setDropdownSearch(input)}
+            />
 </div>
 
 {/* Bank Credit Table */}
@@ -171,7 +191,7 @@ const BankCreditAdd = () => {
     </tr>
   </thead>
   <tbody>
-    {bankData.map((bank, index) => (
+    {sortedBanks.map((bank, index) => (
       <tr key={bank.value}>
         <td>{index + 1}</td>
         <td>{bank.label}</td>

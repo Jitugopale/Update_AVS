@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const Activation = () => {
   const [selectedBank, setSelectedBank] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+      const [dropdownSearch, setDropdownSearch] = useState(""); // Track search input
   const [bankData, setBankData] = useState([
     { id: "bank1", label: "Bank 1", active: false },
     { id: "bank2", label: "Bank 2", active: false },
@@ -16,6 +18,7 @@ const Activation = () => {
   const handleBankSelect = (option) => {
     const selected = bankData.find((b) => b.id === option.value);
     setSelectedBank(selected);
+    setSearchQuery(selected.label); // Set search query to highlight selected bank in table
   };
 
   // Toggle activation status
@@ -33,10 +36,22 @@ const Activation = () => {
       label: bank.label,
     }));
 
-  // Ensure selected bank appears at the top
-  const sortedBanks = selectedBank
-    ? [selectedBank, ...bankData.filter((b) => b.id !== selectedBank.id)]
-    : bankData;
+
+  
+    const dropdownOptions = dropdownSearch
+    ? bankData.map((bank) => ({ value: bank.id, label: bank.label })) // Show all when searching
+    : bankData.slice(0, 3).map((bank) => ({ value: bank.id, label: bank.label })); // Show only top 3 by default
+  
+    // Filter and sort banks based on search query
+    const filteredBanks = bankData.filter((bank) =>
+      bank.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    const sortedBanks = filteredBanks.sort((a, b) => {
+      if (a.label.toLowerCase() === searchQuery.toLowerCase()) return -1;
+      return 0;
+    });
+
+   
 
   return (
     <>
@@ -51,13 +66,14 @@ const Activation = () => {
 {/* Search Bank Dropdown */}
 <div className="mb-3">
   <label className="form-label">Search Bank</label>
-  <Select
-    options={topThreeBanks}
-    value={selectedBank ? { value: selectedBank.id, label: selectedBank.label } : null}
-    onChange={handleBankSelect}
-    placeholder="Search and select a bank..."
-    isSearchable
-  />
+    <Select
+              options={dropdownOptions}
+              value={selectedBank ? { value: selectedBank.id, label: selectedBank.label } : null}
+              onChange={handleBankSelect}
+              placeholder="Search and select a bank..."
+              isSearchable
+              onInputChange={(input) => setDropdownSearch(input)}
+            />
 </div>
 
 {/* Bank Activation Table */}

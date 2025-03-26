@@ -92,36 +92,36 @@ const handlePopup = () => {
   };
 
   const fetchTransactionsFromAPI = async (startIndex, endIndex) => {
-    setLoading(true); // ⬅️ Show loading bar
+    setLoading(true); 
 
     try {
       // Simulating API Call - Replace with actual API request
       const apiData = [
         { key: 1, name: "Client A", amount: 500, date: "2024-03-20" },
         { key: 2, name: "Client B", amount: 700, date: "2025-03-19" },
-        { key: 3, name: "Client C", amount: 600, date: "2024-03-18" },
+        { key: 3, name: "Bella", amount: 600, date: "2024-03-18" },
         { key: 4, name: "Client D", amount: 800, date: "2024-03-17" },
-        { key: 5, name: "Client E", amount: 550, date: "2024-03-16" },
+        { key: 5, name: "Charu", amount: 550, date: "2024-03-16" },
         { key: 6, name: "Client F", amount: 900, date: "2024-03-15" },
         { key: 7, name: "Client G", amount: 750, date: "2024-03-14" },
-        { key: 8, name: "Client H", amount: 620, date: "2024-03-13" },
+        { key: 8, name: "Client H", amount: 620, date: "2025-06-13" },
         { key: 9, name: "Client I", amount: 450, date: "2025-03-12" },
         { key: 10, name: "Client J", amount: 500, date: "2024-03-11" },
         { key: 11, name: "Rahul", amount: 850, date: "2024-03-10" },
         { key: 12, name: "Virat", amount: 850, date: "2024-03-10" },
         { key: 13, name: "Client M", amount: 730, date: "2024-03-08" },
         { key: 14, name: "Client N", amount: 590, date: "2024-03-07" },
-        { key: 15, name: "Client O", amount: 670, date: "2024-03-06" },
+        { key: 15, name: "Client O", amount: 670, date: "2025-07-06" },
         { key: 16, name: "Client P", amount: 700, date: "2024-03-05" },
         { key: 17, name: "Client Q", amount: 920, date: "2024-03-04" },
-        { key: 18, name: "Client R", amount: 610, date: "2024-03-03" },
+        { key: 18, name: "Sahil", amount: 610, date: "2024-03-03" },
         { key: 19, name: "Client S", amount: 740, date: "2024-03-02" },
         { key: 20, name: "Client T", amount: 530, date: "2024-03-01" },
         { key: 21, name: "Client U", amount: 490, date: "2024-02-29" },
         { key: 22, name: "India", amount: 870, date: "2024-02-28" },
         { key: 23, name: "Client W", amount: 920, date: "2024-02-27" },
         { key: 24, name: "Client X", amount: 660, date: "2024-02-26" },
-        { key: 25, name: "Client Y", amount: 580, date: "2024-02-25" },
+        { key: 25, name: "Rock", amount: 580, date: "2024-02-25" },
         { key: 26, name: "Client Z", amount: 890, date: "2024-02-24" },
         { key: 27, name: "Client AA", amount: 730, date: "2024-02-23" },
       ];
